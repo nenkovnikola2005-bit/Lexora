@@ -1,0 +1,57 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+
+  &__label {
+    font-size: var(--font-label-size);
+    font-weight: var(--font-label-weight);
+    line-height: var(--font-label-line-height);
+    letter-spacing: var(--font-label-letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  &__control {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-family-base);
+    font-size: var(--font-body-size);
+    font-weight: var(--font-body-weight);
+    line-height: var(--font-body-line-height);
+    transition: border-color 0.15s ease;
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &--error {
+      border-color: var(--color-danger);
+    }
+  }
+
+  textarea.form-field__control {
+    resize: vertical;
+    min-height: 6rem;
+  }
+
+  &__message {
+    font-size: var(--font-meta-size);
+    line-height: var(--font-meta-line-height);
+    color: var(--color-text-muted);
+
+    &--error {
+      color: var(--color-danger);
+    }
+  }
+}

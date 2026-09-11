@@ -1,0 +1,17 @@
+// Lexora — mixini za responzivan raspored (npr. 3 kolone -> 1 kolona).
+@use "sass:map";
+
+$breakpoints: (
+  mobile: 640px,
+  tablet: 1024px,
+);
+
+@mixin respond($breakpoint) {
+  @if not map.has-key($breakpoints, $breakpoint) {
+    @error "Nepoznata prelomna tačka `#{$breakpoint}`. Dostupne su: #{map.keys($breakpoints)}.";
+  }
+
+  @media (max-width: map.get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}

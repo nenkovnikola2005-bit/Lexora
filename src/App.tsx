@@ -3,7 +3,6 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import { ConversationPage } from "./pages/ConversationPage";
 import { FeedPage } from "./pages/FeedPage";
 import { LawyerProfilePage } from "./pages/LawyerProfilePage";
 import { LoginPage } from "./pages/LoginPage";
@@ -32,7 +31,7 @@ function App() {
                 <Route path="/network/:lawyerId" element={<LawyerProfilePage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/messages" element={<MessagesPage />} />
-                <Route path="/messages/:conversationId" element={<ConversationPage />} />
+                <Route path="/messages/:conversationId" element={<MessagesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/settings/:section" element={<SettingsSectionPage />} />
               </Route>

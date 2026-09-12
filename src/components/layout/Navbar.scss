@@ -1,0 +1,118 @@
+@use "../../styles/mixins" as *;
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+
+  @include respond(mobile) {
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+  }
+}
+
+.navbar__brand {
+  font-size: var(--font-logo-size);
+  font-weight: var(--font-logo-weight);
+  line-height: var(--font-logo-line-height);
+  color: var(--color-primary);
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+
+  @include respond(mobile) {
+    gap: 0.75rem;
+    overflow-x: auto;
+  }
+}
+
+.navbar__link {
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  padding: 0.375rem 0;
+  border-bottom: 2px solid transparent;
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  &--active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar__theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  font-size: 1.1rem;
+
+  &:hover {
+    background-color: var(--color-primary-subtle);
+  }
+}
+
+.navbar__user {
+  position: relative;
+}
+
+.navbar__avatar-button {
+  display: flex;
+  border-radius: 999px;
+}
+
+.navbar__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 10rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navbar__menu-name {
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding: 0.375rem 0.5rem;
+}
+
+.navbar__menu-item {
+  text-align: left;
+  padding: 0.375rem 0.5rem;
+  border-radius: 6px;
+  font-size: var(--font-body-size);
+  color: var(--color-danger);
+
+  &:hover {
+    background-color: var(--color-primary-subtle);
+  }
+}

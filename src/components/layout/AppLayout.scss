@@ -1,0 +1,19 @@
+@use "../../styles/mixins" as *;
+
+.app-layout {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-layout__content {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+
+  @include respond(mobile) {
+    padding: 1.25rem 1rem;
+  }
+}

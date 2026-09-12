@@ -1,0 +1,92 @@
+@use "../styles/mixins" as *;
+
+.network-page {
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  align-items: start;
+  gap: 1.5rem;
+
+  @include respond(tablet) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.network-page__results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.network-page__section-title {
+  font-size: var(--font-section-size);
+  font-weight: var(--font-section-weight);
+  color: var(--color-text-primary);
+}
+
+// --- Pozivnice ---
+
+.network-page__invitations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.network-page__invitations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.network-page__invitation {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1rem;
+
+  @include respond(mobile) {
+    flex-wrap: wrap;
+  }
+}
+
+.network-page__invitation-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.network-page__invitation-name {
+  font-size: var(--font-name-size);
+  font-weight: var(--font-name-weight);
+  color: var(--color-text-primary);
+}
+
+.network-page__invitation-headline {
+  font-size: var(--font-meta-size);
+  color: var(--color-text-muted);
+}
+
+.network-page__invitation-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+// --- Rezultati ---
+
+.network-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.network-page__empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: var(--font-body-size);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+}

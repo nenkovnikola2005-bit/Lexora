@@ -5,10 +5,10 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ConversationPage } from "./pages/ConversationPage";
 import { FeedPage } from "./pages/FeedPage";
+import { LawyerProfilePage } from "./pages/LawyerProfilePage";
 import { LoginPage } from "./pages/LoginPage";
 import { MessagesPage } from "./pages/MessagesPage";
 import { NetworkPage } from "./pages/NetworkPage";
-import { NetworkProfilePage } from "./pages/NetworkProfilePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -29,7 +29,7 @@ function App() {
                 <Route index element={<Navigate to="/feed" replace />} />
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/network" element={<NetworkPage />} />
-                <Route path="/network/:lawyerId" element={<NetworkProfilePage />} />
+                <Route path="/network/:lawyerId" element={<LawyerProfilePage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/messages/:conversationId" element={<ConversationPage />} />

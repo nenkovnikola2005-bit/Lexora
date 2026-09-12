@@ -1,0 +1,60 @@
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.filter-panel__title {
+  font-size: var(--font-section-size);
+  font-weight: var(--font-section-weight);
+  color: var(--color-text-primary);
+}
+
+.filter-panel__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: none;
+  padding: 0;
+}
+
+.filter-panel__legend {
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  letter-spacing: var(--font-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 0;
+  margin-bottom: 0.25rem;
+}
+
+.filter-panel__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-body-size);
+  color: var(--color-text-secondary);
+
+  input {
+    accent-color: var(--color-primary);
+  }
+}
+
+.filter-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+
+  input {
+    accent-color: var(--color-primary);
+  }
+}

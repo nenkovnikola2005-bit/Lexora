@@ -1,9 +1,20 @@
+@use "../styles/mixins" as *;
+
 .lawyer-profile-page {
+  display: grid;
+  grid-template-columns: 1fr 18.75rem;
+  align-items: start;
+  gap: 1.5rem;
+
+  @include respond(tablet) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lawyer-profile-page__main {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  max-width: 44rem;
-  margin: 0 auto;
+  gap: 1rem;
 }
 
 .lawyer-profile-page__not-found {
@@ -19,21 +30,41 @@
   }
 }
 
-.lawyer-profile-page__city {
-  font-size: var(--font-meta-size);
-  color: var(--color-text-muted);
+.lawyer-profile-page__level {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
 }
 
-.lawyer-profile-page__level-tag {
-  font-size: var(--font-label-size);
-  font-weight: var(--font-label-weight);
-  letter-spacing: var(--font-label-letter-spacing);
-  text-transform: uppercase;
-  color: var(--color-primary);
-  background-color: var(--color-primary-subtle);
-  border-radius: 999px;
-  padding: 0.25rem 0.625rem;
+// --- Banner "Otvoren za saradnju" ---
+
+.lawyer-profile-page__collab-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8125rem 1rem;
+  border: 1.5px solid var(--color-success);
+  border-radius: 10px;
+  background-color: color-mix(in srgb, var(--color-success) 8%, var(--color-surface));
 }
+
+.lawyer-profile-page__collab-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.lawyer-profile-page__collab-title {
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.lawyer-profile-page__collab-note {
+  font-size: var(--font-meta-size);
+  color: var(--color-text-secondary);
+  margin-top: 0.125rem;
+}
+
+// --- Sekcije ---
 
 .lawyer-profile-page__section {
   background-color: var(--color-surface);
@@ -55,6 +86,43 @@
   }
 }
 
+.lawyer-profile-page__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+
+  h2 {
+    margin-bottom: 0;
+  }
+}
+
+.lawyer-profile-page__section-action {
+  flex-shrink: 0;
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.lawyer-profile-page__notice {
+  margin-top: 0.75rem;
+  font-size: var(--font-meta-size);
+  color: var(--color-text-muted);
+}
+
+.lawyer-profile-page__empty {
+  color: var(--color-text-muted);
+}
+
+.lawyer-profile-page__posts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// --- Iskustvo ---
+
 .lawyer-profile-page__timeline {
   display: flex;
   flex-direction: column;
@@ -69,6 +137,23 @@
       border-bottom: none;
     }
   }
+}
+
+.lawyer-profile-page__timeline-row {
+  display: flex;
+  gap: 0.875rem;
+}
+
+.lawyer-profile-page__timeline-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9px;
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
 }
 
 .lawyer-profile-page__timeline-role {
@@ -87,18 +172,116 @@
   color: var(--color-text-muted);
 }
 
-.lawyer-profile-page__skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+// --- Obrazovanje i licence ---
 
-  li {
-    font-size: var(--font-meta-size);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-secondary);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    padding: 0.375rem 0.875rem;
+.lawyer-profile-page__credentials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.lawyer-profile-page__credential {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--color-bg);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+
+  > div {
+    flex: 1;
+    min-width: 0;
   }
+}
+
+.lawyer-profile-page__verified-tag {
+  flex-shrink: 0;
+  padding: 0.25rem 0.6875rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-success) 18%, var(--color-surface));
+  color: var(--color-success);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+// --- Veštine i potvrde ---
+
+.lawyer-profile-page__endorsements {
+  display: flex;
+  flex-direction: column;
+}
+
+// --- Preporuke ---
+
+.lawyer-profile-page__recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.lawyer-profile-page__recommendation {
+  display: flex;
+  gap: 0.8125rem;
+  padding-bottom: 1.125rem;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.lawyer-profile-page__recommendation-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  color: var(--color-text-on-primary);
+  font-size: var(--font-name-size);
+  font-weight: var(--font-weight-semibold);
+}
+
+.lawyer-profile-page__recommendation-text {
+  font-size: var(--font-body-size);
+  line-height: var(--font-body-line-height);
+  color: var(--color-text-secondary);
+  margin-top: 0.375rem;
+}
+
+// --- Bočna kolona ---
+
+.lawyer-profile-page__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lawyer-profile-page__card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.lawyer-profile-page__card-title {
+  font-size: var(--font-section-size);
+  font-weight: var(--font-section-weight);
+  color: var(--color-text-primary);
+  margin-bottom: 0.625rem;
+}
+
+.lawyer-profile-page__mutual-count {
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+}
+
+.lawyer-profile-page__similar-list {
+  display: flex;
+  flex-direction: column;
 }

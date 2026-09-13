@@ -14,14 +14,40 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Bavim se privrednim sporovima, statusnim promenama privrednih društava i " +
       "ugovornim pravom već preko dvanaest godina. Zastupam domaće i strane klijente.",
+    licenseVerified: true,
     experience: [
       { role: "Advokat, osnivač", organization: "Advokatska kancelarija Jovanović", period: "2016–danas" },
       { role: "Advokatski pripravnik", organization: "AK Nikolić i partneri", period: "2012–2016" },
     ],
     education: [
+      { school: "Ministarstvo pravde Republike Srbije", degree: "Pravosudni ispit", period: "2012", verified: true },
       { school: "Pravni fakultet Univerziteta u Beogradu", degree: "Diplomirani pravnik", period: "2007–2011" },
     ],
     skills: ["Privredno pravo", "Statusne promene", "Ugovori", "Arbitraža"],
+    openToCollaboration: {
+      enabled: true,
+      note: "Zajedničko zastupanje · Due diligence · Mentorstvo pripravnika",
+    },
+    recommendations: [
+      {
+        id: "lw-01-rec-1",
+        authorName: "Đorđe Milošević",
+        authorInitials: "ĐM",
+        authorHeadline: "Direktor, TechnoPlus d.o.o. · klijent od 2019.",
+        text:
+          "Marko je u distributerskom ugovoru sa nemačkim partnerom uočio dve odredbe " +
+          "o raskidu koje bi nas skupo koštale. Objašnjava bez pravnog žargona kada to nije potrebno.",
+      },
+      {
+        id: "lw-01-rec-2",
+        authorName: "Dragana Marković",
+        authorInitials: "DM",
+        authorHeadline: "Advokat, AK Beograd · zajedničko zastupanje u tri predmeta",
+        text:
+          "Preuzela sam od njega predmet na pola postupka i sve je bilo tu — hronologija, " +
+          "prepiska, obrazloženja. Kolega na koga se računa.",
+      },
+    ],
   },
   {
     id: "lw-02",
@@ -36,6 +62,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Specijalizovana za radne sporove, kolektivne ugovore i zaštitu zaposlenih. " +
       "Redovno sarađujem sa sindikatima i HR sektorima kompanija.",
+    licenseVerified: true,
     experience: [
       { role: "Advokatica", organization: "Advokatska kancelarija Petrović", period: "2018–danas" },
       { role: "Pravni savetnik", organization: "Sindikat radnika Vojvodine", period: "2014–2018" },
@@ -58,6 +85,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Odbrana u krivičnim postupcima, sa fokusom na privredni kriminal i " +
       "krivična dela protiv imovine. Predajem i na seminarima krivične odbrane.",
+    licenseVerified: true,
     experience: [
       { role: "Advokat", organization: "Advokatska kancelarija Stanković", period: "2015–danas" },
     ],
@@ -80,6 +108,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Promet nepokretnosti, ugovori o kupoprodaji, hipoteke i due diligence " +
       "za investitore u stambenim i komercijalnim projektima.",
+    licenseVerified: true,
     experience: [
       { role: "Advokatica, ortak", organization: "Đorđević & Simić Advokati", period: "2019–danas" },
       { role: "Advokat saradnik", organization: "AK Radovanović", period: "2013–2019" },
@@ -88,6 +117,10 @@ export const seedLawyers: LawyerProfile[] = [
       { school: "Pravni fakultet Univerziteta u Beogradu", degree: "Diplomirani pravnik", period: "2006–2010" },
     ],
     skills: ["Nekretnine", "Due diligence", "Hipoteke", "Katastar"],
+    openToCollaboration: {
+      enabled: true,
+      note: "Zajedničko zastupanje · Due diligence za investitore",
+    },
   },
   {
     id: "lw-05",
@@ -102,6 +135,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Poresko planiranje, poreski sporovi i zastupanje pred poreskom upravom. " +
       "Ranije radio u poreskom odeljenju velike revizorske kuće.",
+    licenseVerified: true,
     experience: [
       { role: "Advokat", organization: "Ilić Tax & Law", period: "2017–danas" },
       { role: "Poreski konsultant", organization: "Revizija Plus d.o.o.", period: "2011–2017" },
@@ -125,6 +159,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Zaštita žigova, patenata i autorskih prava, sa posebnim fokusom na " +
       "tehnološke startape i medijsku industriju.",
+    licenseVerified: true,
     experience: [
       { role: "Advokatica", organization: "IP Legal Ristić", period: "2020–danas" },
       { role: "Advokat saradnik", organization: "AK Milošević i partneri", period: "2015–2020" },
@@ -147,6 +182,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Zastupanje u postupcima azila, dozvola boravka i naturalizacije. " +
       "Sarađujem sa nevladinim organizacijama na zaštiti prava migranata.",
+    licenseVerified: false,
     experience: [
       { role: "Advokat", organization: "Advokatska kancelarija Pavlović", period: "2016–danas" },
     ],
@@ -168,6 +204,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Razvodi, starateljstvo, podela imovine i ostavinski postupci. " +
       "Zastupam klijente uz naglasak na mirno rešavanje porodičnih sporova.",
+    licenseVerified: true,
     experience: [
       { role: "Advokatica", organization: "Advokatska kancelarija Nikolić", period: "2014–danas" },
     ],
@@ -175,6 +212,17 @@ export const seedLawyers: LawyerProfile[] = [
       { school: "Pravni fakultet Univerziteta u Novom Sadu", degree: "Diplomirani pravnik", period: "2007–2011" },
     ],
     skills: ["Porodično pravo", "Nasledno pravo", "Medijacija"],
+    recommendations: [
+      {
+        id: "lw-08-rec-1",
+        authorName: "Jelena Petrović",
+        authorInitials: "JP",
+        authorHeadline: "Advokatica, AK Novi Sad · koleginica",
+        text:
+          "Tijana ume da smiri i najnapetiju situaciju oko starateljstva. Klijenti joj veruju " +
+          "jer prvo sasluša, pa tek onda savetuje.",
+      },
+    ],
   },
   {
     id: "lw-09",
@@ -189,6 +237,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "M&A transakcije, korporativno upravljanje i savetovanje stranih investitora " +
       "prilikom ulaska na srpsko tržište.",
+    licenseVerified: true,
     experience: [
       { role: "Senior advokat", organization: "Kostić Corporate Law", period: "2017–danas" },
       { role: "Advokat saradnik", organization: "Međunarodna advokatska kancelarija", period: "2011–2017" },
@@ -198,6 +247,10 @@ export const seedLawyers: LawyerProfile[] = [
       { school: "Pravni fakultet, Nemačka", degree: "LL.M. privredno pravo", period: "2009–2010" },
     ],
     skills: ["M&A", "Korporativno pravo", "Strane investicije"],
+    openToCollaboration: {
+      enabled: true,
+      note: "M&A saradnja · Konsultacije za strane investitore",
+    },
   },
   {
     id: "lw-10",
@@ -212,6 +265,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Odbrana maloletnika i zastupanje oštećenih u krivičnom postupku. " +
       "Angažovana i kao branilac po službenoj dužnosti.",
+    licenseVerified: true,
     experience: [
       { role: "Advokatica", organization: "Advokatska kancelarija Mitrović", period: "2019–danas" },
     ],
@@ -233,6 +287,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Pravno savetovanje u izgradnji i prometu nepokretnosti, legalizacija " +
       "objekata i zastupanje investitora pred lokalnim samoupravama.",
+    licenseVerified: true,
     experience: [
       { role: "Advokat", organization: "Radovanović Nekretnine Legal", period: "2015–danas" },
     ],
@@ -254,6 +309,7 @@ export const seedLawyers: LawyerProfile[] = [
     about:
       "Savetovanje poslodavaca pri usklađivanju internih akata sa zakonom o radu, " +
       "kao i zastupanje zaposlenih u sporovima zbog nezakonitog otkaza.",
+    licenseVerified: false,
     experience: [
       { role: "Advokatica, ortak", organization: "Simić & Vuković Advokati", period: "2018–danas" },
     ],

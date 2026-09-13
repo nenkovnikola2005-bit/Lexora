@@ -16,6 +16,20 @@ export interface Education {
   school: string;
   degree: string;
   period: string;
+  verified?: boolean;
+}
+
+export interface OpenToCollaboration {
+  enabled: boolean;
+  note: string;
+}
+
+export interface Recommendation {
+  id: string;
+  authorName: string;
+  authorInitials: string;
+  authorHeadline: string;
+  text: string;
 }
 
 export interface LawyerProfile {
@@ -29,9 +43,12 @@ export interface LawyerProfile {
   mutualConnections: number;
   avatarInitials: string;
   about: string;
+  licenseVerified: boolean;
   experience: Experience[];
   education: Education[];
   skills: string[];
+  openToCollaboration?: OpenToCollaboration;
+  recommendations?: Recommendation[];
 }
 
 export interface NetworkFilters {

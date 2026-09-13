@@ -1,4 +1,6 @@
-import type { Education, Experience } from "./Lawyer";
+import type { Education, Experience, OpenToCollaboration, Recommendation } from "./Lawyer";
+
+export type { OpenToCollaboration, Recommendation };
 
 export type UserRole = "advokat" | "advokatski-pripravnik" | "pravni-savetnik";
 
@@ -7,19 +9,6 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   "advokatski-pripravnik": "Advokatski pripravnik",
   "pravni-savetnik": "Pravni savetnik u firmi",
 };
-
-export interface OpenToCollaboration {
-  enabled: boolean;
-  note: string;
-}
-
-export interface Recommendation {
-  id: string;
-  authorName: string;
-  authorInitials: string;
-  authorHeadline: string;
-  text: string;
-}
 
 export interface User {
   id: string;

@@ -170,6 +170,30 @@ export class AuthService implements IAuthService {
         },
       ],
       skills: ["Porodično pravo", "Nasledno pravo", "Medijacija"],
+      openToCollaboration: {
+        enabled: true,
+        note: "Zajedničko zastupanje · Medijacija · Konsultacije za kolege iz drugih gradova",
+      },
+      recommendations: [
+        {
+          id: "rec-1",
+          authorName: "Sanja Popović",
+          authorInitials: "SP",
+          authorHeadline: "Advokat i medijator · saradnja na 4 predmeta",
+          text:
+            "Ana ulazi u predmet sa idejom da ga zatvori, ne da ga produži. U dva zajednička " +
+            "slučaja iz prošle godine sporazum je postignut pre prvog ročišta.",
+        },
+        {
+          id: "rec-2",
+          authorName: "Marija Ilić",
+          authorInitials: "MI",
+          authorHeadline: "Advokat · koleginica iz kancelarije Ristić i partneri",
+          text:
+            "Radile smo zajedno dve godine. Pripremu predmeta uvek ostavlja u stanju da ga " +
+            "bilo ko može preuzeti — retka osobina.",
+        },
+      ],
       createdAt: new Date().toISOString(),
       passwordHash,
     };

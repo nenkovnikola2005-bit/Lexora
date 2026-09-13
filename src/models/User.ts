@@ -8,6 +8,19 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   "pravni-savetnik": "Pravni savetnik u firmi",
 };
 
+export interface OpenToCollaboration {
+  enabled: boolean;
+  note: string;
+}
+
+export interface Recommendation {
+  id: string;
+  authorName: string;
+  authorInitials: string;
+  authorHeadline: string;
+  text: string;
+}
+
 export interface User {
   id: string;
   firstName: string;
@@ -24,6 +37,8 @@ export interface User {
   experience: Experience[];
   education: Education[];
   skills: string[];
+  openToCollaboration?: OpenToCollaboration;
+  recommendations?: Recommendation[];
   createdAt: string;
 }
 

@@ -1,20 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { SuggestionCard } from "../components/feed/SuggestionCard";
 import { PostCard } from "../components/feed/PostCard";
 import { PostModal } from "../components/feed/PostModal";
 import { SendPostModal } from "../components/feed/SendPostModal";
 import { ProfileHeader } from "../components/profile/ProfileHeader";
+import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
+import { BriefcaseIcon } from "../components/ui/icons/BriefcaseIcon";
 import { useAuth } from "../context/AuthContext";
 import { CommentService } from "../services/CommentService";
 import { MessageService } from "../services/MessageService";
 import { NetworkService } from "../services/NetworkService";
 import { PostService } from "../services/PostService";
+import type { LawyerProfile } from "../models/Lawyer";
 import type { Post } from "../models/Post";
 import type { Education, Experience } from "../models/Lawyer";
 import type { User } from "../models/User";
 import { fullName } from "../models/User";
+import { pluralizeSr } from "../utils/pluralizeSr";
 import "./ProfilePage.scss";
+
+const SIMILAR_PROFILES_LIMIT = 3;
 
 const EMPTY_EXPERIENCE: Experience = { role: "", organization: "", period: "" };
 const EMPTY_EDUCATION: Education = { school: "", degree: "", period: "" };
@@ -49,6 +56,12 @@ function calculateProfileStrength(user: User): ProfileStrength {
   return { percent, items };
 }
 
+function strengthLabel(percent: number): { text: string; className: string } {
+  if (percent >= 80) return { text: "Visok nivo", className: "profile-page__strength-label--high" };
+  if (percent >= 40) return { text: "Srednji nivo", className: "profile-page__strength-label--mid" };
+  return { text: "Nizak nivo", className: "profile-page__strength-label--low" };
+}
+
 export function ProfilePage() {
   const { user, updateUser } = useAuth();
   const postService = useMemo(() => new PostService(), []);
@@ -72,6 +85,24 @@ export function ProfilePage() {
   const [skillsDraft, setSkillsDraft] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
 
+  const [isEditingCollaboration, setIsEditingCollaboration] = useState(false);
+  const [collaborationDraft, setCollaborationDraft] = useState({ enabled: false, note: "" });
+  const [recommendationNotice, setRecommendationNotice] = useState(false);
+
+  const [similarProfiles, setSimilarProfiles] = useState<LawyerProfile[]>([]);
+
+  const refreshSimilarProfiles = () => {
+    if (!user) return;
+    const matches = networkService
+      .getDirectory()
+      .filter(
+        (lawyer) =>
+          lawyer.practiceArea === user.practiceArea &&
+          networkService.getConnectionStatus(lawyer.id) !== "connected",
+      );
+    setSimilarProfiles(matches.slice(0, SIMILAR_PROFILES_LIMIT));
+  };
+
   useEffect(() => {
     if (!user) return;
     postService.seedIfEmpty();
@@ -79,6 +110,7 @@ export function ProfilePage() {
     commentService.seedIfEmpty();
     messageService.seedIfEmpty();
     setPosts(postService.byAuthor(user.id));
+    refreshSimilarProfiles();
   }, [user, postService, networkService, commentService, messageService]);
 
   if (!user) {
@@ -248,8 +280,39 @@ export function ProfilePage() {
     setIsEditingSkills(false);
   };
 
+  // --- Otvorenost za saradnju ---
+
+  const handleStartEditingCollaboration = () => {
+    setCollaborationDraft({
+      enabled: user.openToCollaboration?.enabled ?? false,
+      note: user.openToCollaboration?.note ?? "",
+    });
+    setIsEditingCollaboration(true);
+  };
+
+  const handleSaveCollaboration = () => {
+    updateUser({
+      openToCollaboration: {
+        enabled: collaborationDraft.enabled,
+        note: collaborationDraft.note.trim(),
+      },
+    });
+    setIsEditingCollaboration(false);
+  };
+
+  const handleCancelEditingCollaboration = () => {
+    setIsEditingCollaboration(false);
+  };
+
+  const handleConnectSimilar = (lawyerId: string) => {
+    networkService.sendRequest(lawyerId);
+    refreshSimilarProfiles();
+  };
+
   const strength = calculateProfileStrength(user);
   const incompleteItems = strength.items.filter((item) => !item.done);
+  const strengthMeta = strengthLabel(strength.percent);
+  const connectionsCount = networkService.connectedCount();
 
   return (
     <div className="profile-page">
@@ -258,15 +321,79 @@ export function ProfilePage() {
           avatarInitials={user.avatarInitials}
           name={fullName(user)}
           headline={user.headline}
+          verifiedBadge={user.licenseVerified}
           meta={
-            <span className="profile-page__city">
-              {user.city ?? "Grad nije naveden"}
-            </span>
+            <>
+              <span>{user.city ?? "Grad nije naveden"}</span>
+              <span>·</span>
+              <span className="profile-page__connections-count">
+                {connectionsCount} {pluralizeSr(connectionsCount, "veza", "veze", "veza")}
+              </span>
+            </>
           }
           actions={
             <Button onClick={handleStartEditing} disabled={isEditingAbout}>
               Uredi profil
             </Button>
+          }
+          banner={
+            isEditingCollaboration ? (
+              <div className="profile-page__collab-edit">
+                <label className="profile-page__collab-toggle">
+                  <input
+                    type="checkbox"
+                    checked={collaborationDraft.enabled}
+                    onChange={(event) =>
+                      setCollaborationDraft((current) => ({
+                        ...current,
+                        enabled: event.target.checked,
+                      }))
+                    }
+                  />
+                  Otvoren/a sam za saradnju
+                </label>
+                <textarea
+                  className="profile-page__about-textarea"
+                  value={collaborationDraft.note}
+                  onChange={(event) =>
+                    setCollaborationDraft((current) => ({ ...current, note: event.target.value }))
+                  }
+                  rows={2}
+                  placeholder="Npr. Zajedničko zastupanje, medijacija, konsultacije za kolege..."
+                  aria-label="Opis saradnje"
+                />
+                <div className="profile-page__about-actions">
+                  <Button size="small" onClick={handleSaveCollaboration}>
+                    Sačuvaj
+                  </Button>
+                  <Button size="small" variant="outline" onClick={handleCancelEditingCollaboration}>
+                    Otkaži
+                  </Button>
+                </div>
+              </div>
+            ) : user.openToCollaboration?.enabled ? (
+              <div className="profile-page__collab-banner">
+                <div>
+                  <p className="profile-page__collab-title">Otvorena/otvoren za saradnju</p>
+                  <p className="profile-page__collab-note">{user.openToCollaboration.note}</p>
+                </div>
+                <button
+                  type="button"
+                  className="profile-page__section-action"
+                  onClick={handleStartEditingCollaboration}
+                >
+                  Uredi
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="profile-page__collab-empty"
+                onClick={handleStartEditingCollaboration}
+              >
+                + Označite da ste otvoreni za saradnju
+              </button>
+            )
           }
         />
 
@@ -398,10 +525,15 @@ export function ProfilePage() {
           ) : (
             <ul className="profile-page__timeline">
               {(user.experience ?? []).map((item, index) => (
-                <li key={index}>
-                  <p className="profile-page__timeline-role">{item.role}</p>
-                  <p className="profile-page__timeline-org">{item.organization}</p>
-                  <p className="profile-page__timeline-period">{item.period}</p>
+                <li key={index} className="profile-page__timeline-row">
+                  <span className="profile-page__timeline-icon">
+                    <BriefcaseIcon />
+                  </span>
+                  <div>
+                    <p className="profile-page__timeline-role">{item.role}</p>
+                    <p className="profile-page__timeline-org">{item.organization}</p>
+                    <p className="profile-page__timeline-period">{item.period}</p>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -562,11 +694,52 @@ export function ProfilePage() {
             </ul>
           )}
         </section>
+
+        <section className="profile-page__section">
+          <div className="profile-page__section-header">
+            <h2>Preporuke</h2>
+            <button
+              type="button"
+              className="profile-page__section-action"
+              onClick={() => setRecommendationNotice(true)}
+            >
+              Zatraži preporuku
+            </button>
+          </div>
+
+          {recommendationNotice && (
+            <p className="profile-page__notice" role="status">
+              Traženje preporuka još uvek nije dostupno.
+            </p>
+          )}
+
+          {(user.recommendations ?? []).length === 0 ? (
+            <p className="profile-page__empty">Još uvek nemate nijednu preporuku.</p>
+          ) : (
+            <ul className="profile-page__recommendations">
+              {(user.recommendations ?? []).map((recommendation) => (
+                <li key={recommendation.id} className="profile-page__recommendation">
+                  <Avatar initials={recommendation.authorInitials} size="md" />
+                  <div>
+                    <p className="profile-page__recommendation-name">{recommendation.authorName}</p>
+                    <p className="profile-page__recommendation-headline">
+                      {recommendation.authorHeadline}
+                    </p>
+                    <p className="profile-page__recommendation-text">„{recommendation.text}”</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
 
       <aside className="profile-page__sidebar">
         <div className="profile-page__card">
           <p className="profile-page__card-title">Snaga profila</p>
+          <p className={`profile-page__strength-label ${strengthMeta.className}`}>
+            {strengthMeta.text}
+          </p>
           <div className="profile-page__strength-bar">
             <div
               className="profile-page__strength-fill"
@@ -597,6 +770,17 @@ export function ProfilePage() {
             <span className="profile-page__analytics-label">Pojavljivanja u pretrazi</span>
           </div>
         </div>
+
+        {similarProfiles.length > 0 && (
+          <div className="profile-page__card">
+            <p className="profile-page__card-title">Slični profili</p>
+            <div className="profile-page__similar-list">
+              {similarProfiles.map((lawyer) => (
+                <SuggestionCard key={lawyer.id} lawyer={lawyer} onConnect={handleConnectSimilar} />
+              ))}
+            </div>
+          </div>
+        )}
       </aside>
 
       {activePost && (

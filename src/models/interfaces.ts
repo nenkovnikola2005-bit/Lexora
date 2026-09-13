@@ -12,4 +12,5 @@ export interface IAuthService {
   logout(): void;
   getCurrentUser(): User | null;
   updateUser(id: string, patch: Partial<User>): User | null;
+  changePassword(id: string, currentPassword: string, newPassword: string): Promise<void>;
 }

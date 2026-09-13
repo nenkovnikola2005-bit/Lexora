@@ -1,8 +1,12 @@
-import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { SettingsMenu } from "../components/settings/SettingsMenu";
+import { Button } from "../components/ui/Button";
+import { FormField } from "../components/ui/FormField";
 import { useAuth } from "../context/AuthContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { AuthService } from "../services/AuthService";
 import type { AccountSettings } from "../models/Settings";
 import "./SettingsPage.scss";
 
@@ -30,11 +34,18 @@ const VISIBILITY_OPTIONS: {
 export function SettingsPage() {
   const { section } = useParams<{ section: string }>();
   const { user } = useAuth();
+  const authService = useMemo(() => new AuthService(), []);
 
   const [settings, setSettings] = useLocalStorage<AccountSettings>(
     `lexora_settings_${user?.id ?? "guest"}`,
     DEFAULT_SETTINGS,
   );
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
   if (!user) {
     return null;
@@ -42,6 +53,23 @@ export function SettingsPage() {
 
   const updateSettings = (patch: Partial<AccountSettings>) => {
     setSettings((current) => ({ ...current, ...patch }));
+  };
+
+  const handleChangePassword = async (event: FormEvent) => {
+    event.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(null);
+    setPasswordSubmitting(true);
+    try {
+      await authService.changePassword(user.id, currentPassword, newPassword);
+      setPasswordSuccess("Lozinka je uspešno promenjena.");
+      setCurrentPassword("");
+      setNewPassword("");
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : "Došlo je do greške.");
+    } finally {
+      setPasswordSubmitting(false);
+    }
   };
 
   let panel: ReactNode;
@@ -111,6 +139,44 @@ export function SettingsPage() {
             />
           </label>
         </div>
+      </section>
+    );
+  } else if (section === "nalog") {
+    panel = (
+      <section className="settings-page__panel">
+        <h2>Nalog i prijava</h2>
+        <p className="settings-page__account-email">
+          Prijavljeni ste kao <strong>{user.email}</strong>
+        </p>
+
+        <form className="settings-page__password-form" onSubmit={handleChangePassword}>
+          <FormField
+            id="current-password"
+            label="Trenutna lozinka"
+            variant="password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            required
+          />
+          <FormField
+            id="new-password"
+            label="Nova lozinka"
+            variant="password"
+            value={newPassword}
+            onChange={setNewPassword}
+            required
+          />
+          {passwordError && <p className="settings-page__form-error">{passwordError}</p>}
+          {passwordSuccess && (
+            <p className="settings-page__form-success">{passwordSuccess}</p>
+          )}
+          <Button
+            type="submit"
+            disabled={passwordSubmitting || !currentPassword || !newPassword}
+          >
+            {passwordSubmitting ? "Menjanje..." : "Promeni lozinku"}
+          </Button>
+        </form>
       </section>
     );
   } else {

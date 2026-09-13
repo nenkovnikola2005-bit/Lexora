@@ -108,6 +108,25 @@ export class AuthService implements IAuthService {
     return stripPassword(updated);
   }
 
+  async changePassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
+    const accounts = this.accountsStorage.get() ?? [];
+    const index = accounts.findIndex((candidate) => candidate.id === id);
+    if (index === -1) {
+      throw new Error("Nalog nije pronađen.");
+    }
+
+    const currentHash = await hashPassword(currentPassword);
+    if (accounts[index].passwordHash !== currentHash) {
+      throw new Error("Trenutna lozinka nije tačna.");
+    }
+
+    accounts[index] = {
+      ...accounts[index],
+      passwordHash: await hashPassword(newPassword),
+    };
+    this.accountsStorage.set(accounts);
+  }
+
   async seedDemoAccount(): Promise<void> {
     const accounts = this.accountsStorage.get() ?? [];
     const exists = accounts.some(

@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { PostCard } from "../components/feed/PostCard";
+import { PostModal } from "../components/feed/PostModal";
 import { ProfileHeader } from "../components/profile/ProfileHeader";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../context/AuthContext";
+import { CommentService } from "../services/CommentService";
+import { NetworkService } from "../services/NetworkService";
 import { PostService } from "../services/PostService";
 import type { Post } from "../models/Post";
 import type { Education, Experience } from "../models/Lawyer";
@@ -47,8 +50,11 @@ function calculateProfileStrength(user: User): ProfileStrength {
 export function ProfilePage() {
   const { user, updateUser } = useAuth();
   const postService = useMemo(() => new PostService(), []);
+  const networkService = useMemo(() => new NetworkService(), []);
+  const commentService = useMemo(() => new CommentService(), []);
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [activePostId, setActivePostId] = useState<string | null>(null);
   const [isEditingAbout, setIsEditingAbout] = useState(false);
   const [aboutDraft, setAboutDraft] = useState("");
 
@@ -65,8 +71,10 @@ export function ProfilePage() {
   useEffect(() => {
     if (!user) return;
     postService.seedIfEmpty();
+    networkService.seedIfEmpty();
+    commentService.seedIfEmpty();
     setPosts(postService.byAuthor(user.id));
-  }, [user, postService]);
+  }, [user, postService, networkService, commentService]);
 
   if (!user) {
     return null;
@@ -83,6 +91,13 @@ export function ProfilePage() {
     postService.toggleSave(postId, user.id);
     refreshPosts();
   };
+
+  const handleCommentAdded = (postId: string) => {
+    postService.incrementCommentsCount(postId);
+    refreshPosts();
+  };
+
+  const activePost = activePostId ? posts.find((post) => post.id === activePostId) ?? null : null;
 
   const handleStartEditing = () => {
     setAboutDraft(user.bio);
@@ -277,8 +292,11 @@ export function ProfilePage() {
                   key={post.id}
                   post={post}
                   currentUserId={user.id}
+                  networkService={networkService}
                   onToggleLike={handleToggleLike}
                   onToggleSave={handleToggleSave}
+                  onConnect={() => {}}
+                  onOpenPost={setActivePostId}
                 />
               ))}
             </div>
@@ -563,6 +581,18 @@ export function ProfilePage() {
           </div>
         </div>
       </aside>
+
+      {activePost && (
+        <PostModal
+          post={activePost}
+          currentUser={user}
+          commentService={commentService}
+          onClose={() => setActivePostId(null)}
+          onToggleLike={handleToggleLike}
+          onToggleSave={handleToggleSave}
+          onCommentAdded={handleCommentAdded}
+        />
+      )}
     </div>
   );
 }

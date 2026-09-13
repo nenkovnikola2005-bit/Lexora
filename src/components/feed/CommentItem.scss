@@ -1,0 +1,37 @@
+.comment-item {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-start;
+}
+
+.comment-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.comment-item__bubble {
+  background-color: var(--color-bg);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+}
+
+.comment-item__author {
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.comment-item__content {
+  font-size: var(--font-body-size);
+  line-height: var(--font-body-line-height);
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+.comment-item__time {
+  font-size: var(--font-label-size);
+  color: var(--color-text-muted);
+  padding-left: 0.75rem;
+}

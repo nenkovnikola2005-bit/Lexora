@@ -74,4 +74,17 @@ export class PostService {
     posts[index] = post;
     this.storage.set(posts);
   }
+
+  incrementCommentsCount(postId: string): void {
+    const posts = this.storage.get() ?? [];
+    const index = posts.findIndex((post) => post.id === postId);
+    if (index === -1) return;
+    posts[index] = { ...posts[index], commentsCount: posts[index].commentsCount + 1 };
+    this.storage.set(posts);
+  }
+
+  getById(postId: string): Post | null {
+    const posts = this.storage.get() ?? [];
+    return posts.find((post) => post.id === postId) ?? null;
+  }
 }

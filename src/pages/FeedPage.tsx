@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
+import { BookmarkIcon } from "../components/ui/icons/BookmarkIcon";
 import { PostCard } from "../components/feed/PostCard";
 import { PostComposer } from "../components/feed/PostComposer";
+import { PostModal } from "../components/feed/PostModal";
+import { SuggestionCard } from "../components/feed/SuggestionCard";
 import { useAuth } from "../context/AuthContext";
+import { CommentService } from "../services/CommentService";
 import { NetworkService } from "../services/NetworkService";
 import { PostService } from "../services/PostService";
+import type { LawyerProfile } from "../models/Lawyer";
 import type { Post, PostSort } from "../models/Post";
 import { fullName } from "../models/User";
 import "./FeedPage.scss";
@@ -28,20 +33,34 @@ const LEGAL_NEWS = [
   },
 ];
 
+const SUGGESTIONS_LIMIT = 3;
+
 export function FeedPage() {
   const { user } = useAuth();
   const postService = useMemo(() => new PostService(), []);
   const networkService = useMemo(() => new NetworkService(), []);
+  const commentService = useMemo(() => new CommentService(), []);
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [sort, setSort] = useState<PostSort>("novo");
   const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [suggestions, setSuggestions] = useState<LawyerProfile[]>([]);
+  const [activePostId, setActivePostId] = useState<string | null>(null);
+
+  const refreshSuggestions = () => {
+    const notConnected = networkService
+      .getDirectory()
+      .filter((lawyer) => networkService.getConnectionStatus(lawyer.id) === "none");
+    setSuggestions(notConnected.slice(0, SUGGESTIONS_LIMIT));
+  };
 
   useEffect(() => {
     postService.seedIfEmpty();
     networkService.seedIfEmpty();
+    commentService.seedIfEmpty();
     setPosts(postService.list(sort));
-  }, [postService, networkService, sort]);
+    refreshSuggestions();
+  }, [postService, networkService, commentService, sort]);
 
   if (!user) {
     return null;
@@ -59,43 +78,60 @@ export function FeedPage() {
     refreshPosts();
   };
 
+  const handleConnect = (lawyerId: string) => {
+    networkService.sendRequest(lawyerId);
+    refreshPosts();
+    refreshSuggestions();
+  };
+
+  const handleCommentAdded = (postId: string) => {
+    postService.incrementCommentsCount(postId);
+    refreshPosts();
+  };
+
   const visiblePosts = showSavedOnly
     ? posts.filter((post) => post.savedBy.includes(user.id))
     : posts;
 
   const myPostsCount = postService.byAuthor(user.id).length;
   const connectionsCount = networkService.connectedCount();
+  const activePost = activePostId ? posts.find((post) => post.id === activePostId) ?? null : null;
 
   return (
     <div className="feed-page">
       <aside className="feed-page__column feed-page__column--left">
-        <div className="feed-page__card feed-page__profile-card">
-          <Avatar initials={user.avatarInitials} size="lg" />
-          <p className="feed-page__profile-name">{fullName(user)}</p>
-          <p className="feed-page__profile-headline">{user.headline}</p>
-          <dl className="feed-page__profile-stats">
-            <div className="feed-page__profile-stat">
+        <div className="feed-page__identity-card">
+          <div className="feed-page__identity-cover" />
+          <div className="feed-page__identity-avatar">
+            <Avatar initials={user.avatarInitials} size="lg" />
+          </div>
+          <div className="feed-page__identity-body">
+            <p className="feed-page__identity-name">{fullName(user)}</p>
+            <p className="feed-page__identity-headline">{user.headline}</p>
+          </div>
+          <dl className="feed-page__identity-stats">
+            <div className="feed-page__identity-stat">
               <dt>Veze</dt>
               <dd>{connectionsCount}</dd>
             </div>
-            <div className="feed-page__profile-stat">
+            <div className="feed-page__identity-stat">
               <dt>Objave</dt>
               <dd>{myPostsCount}</dd>
             </div>
           </dl>
+          <button
+            type="button"
+            className={
+              showSavedOnly
+                ? "feed-page__identity-saved feed-page__identity-saved--active"
+                : "feed-page__identity-saved"
+            }
+            onClick={() => setShowSavedOnly((value) => !value)}
+          >
+            <BookmarkIcon filled={showSavedOnly} />
+            Sačuvane objave
+          </button>
         </div>
-
-        <button
-          type="button"
-          className={
-            showSavedOnly
-              ? "feed-page__card feed-page__sidebar-link feed-page__sidebar-link--active"
-              : "feed-page__card feed-page__sidebar-link"
-          }
-          onClick={() => setShowSavedOnly((value) => !value)}
-        >
-          Sačuvane objave
-        </button>
 
         <div className="feed-page__card feed-page__placeholder-card">
           <h2 className="feed-page__card-title">Moje grupe</h2>
@@ -163,8 +199,11 @@ export function FeedPage() {
                 key={post.id}
                 post={post}
                 currentUserId={user.id}
+                networkService={networkService}
                 onToggleLike={handleToggleLike}
                 onToggleSave={handleToggleSave}
+                onConnect={handleConnect}
+                onOpenPost={setActivePostId}
               />
             ))}
           </div>
@@ -177,12 +216,26 @@ export function FeedPage() {
           <ul className="feed-page__news-list">
             {LEGAL_NEWS.map((item) => (
               <li key={item.id} className="feed-page__news-item">
-                <p className="feed-page__news-item-title">{item.title}</p>
-                <p className="feed-page__news-item-source">{item.source}</p>
+                <span className="feed-page__news-dot" aria-hidden="true" />
+                <div>
+                  <p className="feed-page__news-item-title">{item.title}</p>
+                  <p className="feed-page__news-item-source">{item.source}</p>
+                </div>
               </li>
             ))}
           </ul>
         </div>
+
+        {suggestions.length > 0 && (
+          <div className="feed-page__card feed-page__suggestions-card">
+            <h2 className="feed-page__card-title">Možda poznajete</h2>
+            <div className="feed-page__suggestions-list">
+              {suggestions.map((lawyer) => (
+                <SuggestionCard key={lawyer.id} lawyer={lawyer} onConnect={handleConnect} />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="feed-page__card feed-page__pro-card">
           <h2 className="feed-page__card-title">Lexora Pro</h2>
@@ -195,6 +248,18 @@ export function FeedPage() {
           </Button>
         </div>
       </aside>
+
+      {activePost && (
+        <PostModal
+          post={activePost}
+          currentUser={user}
+          commentService={commentService}
+          onClose={() => setActivePostId(null)}
+          onToggleLike={handleToggleLike}
+          onToggleSave={handleToggleSave}
+          onCommentAdded={handleCommentAdded}
+        />
+      )}
     </div>
   );
 }

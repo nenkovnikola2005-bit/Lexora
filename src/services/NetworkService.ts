@@ -6,10 +6,11 @@ import type {
 } from "../models/Lawyer";
 import { matchesFilters } from "../models/Lawyer";
 import type { User } from "../models/User";
+import { DEMO_USER_ID } from "./AuthService";
 import { StorageService } from "./StorageService";
 
 const DIRECTORY_KEY = "lexora_network_directory";
-const CONNECTIONS_KEY = "lexora_network_connections";
+const CONNECTIONS_KEY_PREFIX = "lexora_network_connections_";
 const ACCOUNTS_KEY = "lexora_accounts";
 
 type ConnectionsMap = Record<string, ConnectionStatus>;
@@ -24,23 +25,29 @@ const SEED_CONNECTIONS: ConnectionsMap = {
 
 export class NetworkService {
   private directoryStorage: StorageService<LawyerProfile[]>;
-  private connectionsStorage: StorageService<ConnectionsMap>;
   private accountsStorage: StorageService<User[]>;
 
   constructor() {
     this.directoryStorage = new StorageService<LawyerProfile[]>(DIRECTORY_KEY);
-    this.connectionsStorage = new StorageService<ConnectionsMap>(CONNECTIONS_KEY);
     this.accountsStorage = new StorageService<User[]>(ACCOUNTS_KEY);
   }
 
-  seedIfEmpty(): void {
+  // Svaki nalog ima sopstvenu mapu veza (ko sam ja povezan/pozvan) — bez ovoga
+  // bi zahtev poslat sa naloga A bio nevidljiv nalogu B jer bi delili isti globalni zapis.
+  private connectionsStorageFor(userId: string): StorageService<ConnectionsMap> {
+    return new StorageService<ConnectionsMap>(`${CONNECTIONS_KEY_PREFIX}${userId}`);
+  }
+
+  seedIfEmpty(currentUserId?: string): void {
     const existing = this.directoryStorage.get();
     if (!existing || existing.length === 0) {
       this.directoryStorage.set(seedLawyers);
     }
-    const existingConnections = this.connectionsStorage.get();
+    if (!currentUserId) return;
+    const connectionsStorage = this.connectionsStorageFor(currentUserId);
+    const existingConnections = connectionsStorage.get();
     if (!existingConnections) {
-      this.connectionsStorage.set(SEED_CONNECTIONS);
+      connectionsStorage.set(currentUserId === DEMO_USER_ID ? SEED_CONNECTIONS : {});
     }
   }
 
@@ -88,39 +95,52 @@ export class NetworkService {
     return this.getAllLawyers().find((lawyer) => lawyer.id === id) ?? null;
   }
 
-  getConnectionStatus(lawyerId: string): ConnectionStatus {
-    const connections = this.connectionsStorage.get() ?? {};
+  getConnectionStatus(lawyerId: string, currentUserId: string): ConnectionStatus {
+    const connections = this.connectionsStorageFor(currentUserId).get() ?? {};
     return connections[lawyerId] ?? "none";
   }
 
-  getPendingIncoming(): LawyerProfile[] {
-    const connections = this.connectionsStorage.get() ?? {};
+  getPendingIncoming(currentUserId: string): LawyerProfile[] {
+    const connections = this.connectionsStorageFor(currentUserId).get() ?? {};
     return this.getAllLawyers().filter(
       (lawyer) => connections[lawyer.id] === "pending-incoming",
     );
   }
 
-  connectedCount(): number {
-    const connections = this.connectionsStorage.get() ?? {};
+  connectedCount(currentUserId: string): number {
+    const connections = this.connectionsStorageFor(currentUserId).get() ?? {};
     return Object.values(connections).filter((status) => status === "connected")
       .length;
   }
 
-  sendRequest(lawyerId: string): void {
-    const connections = this.connectionsStorage.get() ?? {};
-    connections[lawyerId] = "pending-outgoing";
-    this.connectionsStorage.set(connections);
+  // Upisuje status na obe strane — bez recipročnog upisa druga strana
+  // nikad ne bi videla pozivnicu/prihvatanje kada se uloguje na svoj nalog.
+  private setStatusBothSides(
+    currentUserId: string,
+    lawyerId: string,
+    myStatus: ConnectionStatus,
+    theirStatus: ConnectionStatus,
+  ): void {
+    const mine = this.connectionsStorageFor(currentUserId);
+    const mineMap = mine.get() ?? {};
+    mineMap[lawyerId] = myStatus;
+    mine.set(mineMap);
+
+    const theirs = this.connectionsStorageFor(lawyerId);
+    const theirsMap = theirs.get() ?? {};
+    theirsMap[currentUserId] = theirStatus;
+    theirs.set(theirsMap);
   }
 
-  accept(lawyerId: string): void {
-    const connections = this.connectionsStorage.get() ?? {};
-    connections[lawyerId] = "connected";
-    this.connectionsStorage.set(connections);
+  sendRequest(lawyerId: string, currentUserId: string): void {
+    this.setStatusBothSides(currentUserId, lawyerId, "pending-outgoing", "pending-incoming");
   }
 
-  decline(lawyerId: string): void {
-    const connections = this.connectionsStorage.get() ?? {};
-    connections[lawyerId] = "none";
-    this.connectionsStorage.set(connections);
+  accept(lawyerId: string, currentUserId: string): void {
+    this.setStatusBothSides(currentUserId, lawyerId, "connected", "connected");
+  }
+
+  decline(lawyerId: string, currentUserId: string): void {
+    this.setStatusBothSides(currentUserId, lawyerId, "none", "none");
   }
 }

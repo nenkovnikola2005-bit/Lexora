@@ -68,7 +68,9 @@ export function PostCard({
   const isOwnPost = post.authorId === currentUserId;
 
   const author = isOwnPost ? null : networkService.getById(post.authorId);
-  const connectionStatus = author ? networkService.getConnectionStatus(post.authorId) : null;
+  const connectionStatus = author
+    ? networkService.getConnectionStatus(post.authorId, currentUserId)
+    : null;
 
   const isLong = post.content.length > CONTENT_PREVIEW_LIMIT;
   const previewContent = isLong

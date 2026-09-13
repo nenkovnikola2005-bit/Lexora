@@ -53,10 +53,10 @@ export function MessagesPage() {
 
   useEffect(() => {
     messageService.seedIfEmpty();
-    networkService.seedIfEmpty();
+    networkService.seedIfEmpty(user?.id);
     refreshConversations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageService, networkService]);
+  }, [messageService, networkService, user?.id]);
 
   useEffect(() => {
     if (!conversationId) {
@@ -121,7 +121,7 @@ export function MessagesPage() {
     .filter((conversation) => {
       if (filter === "unread") return Boolean(conversation.unread);
       if (filter === "connections") {
-        return networkService.getConnectionStatus(conversation.participantId) === "connected";
+        return networkService.getConnectionStatus(conversation.participantId, user.id) === "connected";
       }
       return true;
     });
@@ -311,6 +311,7 @@ export function MessagesPage() {
         <NewConversationModal
           networkService={networkService}
           messageService={messageService}
+          currentUserId={user.id}
           onClose={() => setShowNewConversation(false)}
           onStart={handleStartConversation}
         />

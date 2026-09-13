@@ -37,13 +37,14 @@ export function NetworkPage() {
   };
 
   const refreshPending = () => {
-    setPendingIncoming(networkService.getPendingIncoming());
+    if (!user) return;
+    setPendingIncoming(networkService.getPendingIncoming(user.id));
   };
 
   // Učitava direktorijum i pozivnice jednom, pri prvom renderovanju stranice —
   // uzima u obzir i globalnu pretragu iz navbar-a (?q=...).
   useEffect(() => {
-    networkService.seedIfEmpty();
+    networkService.seedIfEmpty(user?.id);
     setAllLawyers(networkService.getDirectory(undefined, user?.id));
     const initialFilters = { ...EMPTY_FILTERS, query: searchParams.get("q") ?? "" };
     setFilters(initialFilters);
@@ -57,6 +58,10 @@ export function NetworkPage() {
     PAGE_SIZE,
   );
 
+  if (!user) {
+    return null;
+  }
+
   const handleFiltersChange = (nextFilters: NetworkFilters) => {
     setFilters(nextFilters);
     refreshDirectory(nextFilters);
@@ -69,18 +74,18 @@ export function NetworkPage() {
   };
 
   const handleConnect = (lawyerId: string) => {
-    networkService.sendRequest(lawyerId);
+    networkService.sendRequest(lawyerId, user.id);
     refreshDirectory(filters);
   };
 
   const handleAccept = (lawyerId: string) => {
-    networkService.accept(lawyerId);
+    networkService.accept(lawyerId, user.id);
     refreshDirectory(filters);
     refreshPending();
   };
 
   const handleDecline = (lawyerId: string) => {
-    networkService.decline(lawyerId);
+    networkService.decline(lawyerId, user.id);
     refreshPending();
   };
 
@@ -91,7 +96,7 @@ export function NetworkPage() {
     filters.onlyMutual ||
     Boolean(filters.query);
 
-  const connectedCount = networkService.connectedCount();
+  const connectedCount = networkService.connectedCount(user.id);
 
   return (
     <div className="network-page">
@@ -182,7 +187,7 @@ export function NetworkPage() {
                 <LawyerCard
                   key={lawyer.id}
                   lawyer={lawyer}
-                  status={networkService.getConnectionStatus(lawyer.id)}
+                  status={networkService.getConnectionStatus(lawyer.id, user.id)}
                   onConnect={handleConnect}
                 />
               ))}

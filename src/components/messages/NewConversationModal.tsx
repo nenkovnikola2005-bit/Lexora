@@ -9,6 +9,7 @@ import "./NewConversationModal.scss";
 export interface NewConversationModalProps {
   networkService: NetworkService;
   messageService: MessageService;
+  currentUserId: string;
   onClose: () => void;
   onStart: (conversationId: string) => void;
 }
@@ -17,15 +18,18 @@ export interface NewConversationModalProps {
 export function NewConversationModal({
   networkService,
   messageService,
+  currentUserId,
   onClose,
   onStart,
 }: NewConversationModalProps) {
   const connections = useMemo<LawyerProfile[]>(
     () =>
       networkService
-        .getDirectory()
-        .filter((lawyer) => networkService.getConnectionStatus(lawyer.id) === "connected"),
-    [networkService],
+        .getDirectory(undefined, currentUserId)
+        .filter(
+          (lawyer) => networkService.getConnectionStatus(lawyer.id, currentUserId) === "connected",
+        ),
+    [networkService, currentUserId],
   );
 
   const handleSelect = (lawyer: LawyerProfile) => {

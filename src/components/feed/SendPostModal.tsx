@@ -51,9 +51,11 @@ export function SendPostModal({
   const connections = useMemo<LawyerProfile[]>(
     () =>
       networkService
-        .getDirectory()
-        .filter((lawyer) => networkService.getConnectionStatus(lawyer.id) === "connected"),
-    [networkService],
+        .getDirectory(undefined, currentUser.id)
+        .filter(
+          (lawyer) => networkService.getConnectionStatus(lawyer.id, currentUser.id) === "connected",
+        ),
+    [networkService, currentUser.id],
   );
 
   const handleSend = (lawyer: LawyerProfile) => {

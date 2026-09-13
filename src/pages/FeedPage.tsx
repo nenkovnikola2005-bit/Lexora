@@ -56,9 +56,10 @@ export function FeedPage() {
   const [sendPostId, setSendPostId] = useState<string | null>(null);
 
   const refreshSuggestions = () => {
+    if (!user) return;
     const notConnected = networkService
-      .getDirectory(undefined, user?.id)
-      .filter((lawyer) => networkService.getConnectionStatus(lawyer.id) === "none");
+      .getDirectory(undefined, user.id)
+      .filter((lawyer) => networkService.getConnectionStatus(lawyer.id, user.id) === "none");
     setSuggestions(notConnected.slice(0, SUGGESTIONS_LIMIT));
   };
 
@@ -66,7 +67,7 @@ export function FeedPage() {
 
   useEffect(() => {
     postService.seedIfEmpty();
-    networkService.seedIfEmpty();
+    networkService.seedIfEmpty(user?.id);
     commentService.seedIfEmpty();
     messageService.seedIfEmpty();
     groupService.seedIfEmpty();
@@ -92,7 +93,7 @@ export function FeedPage() {
   };
 
   const handleConnect = (lawyerId: string) => {
-    networkService.sendRequest(lawyerId);
+    networkService.sendRequest(lawyerId, user.id);
     refreshPosts();
     refreshSuggestions();
   };
@@ -117,7 +118,7 @@ export function FeedPage() {
     : posts;
 
   const myPostsCount = postService.byAuthor(user.id).length;
-  const connectionsCount = networkService.connectedCount();
+  const connectionsCount = networkService.connectedCount(user.id);
   const activePost = activePostId ? posts.find((post) => post.id === activePostId) ?? null : null;
   const sendPost = sendPostId ? posts.find((post) => post.id === sendPostId) ?? null : null;
 

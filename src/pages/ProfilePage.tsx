@@ -98,7 +98,7 @@ export function ProfilePage() {
       .filter(
         (lawyer) =>
           lawyer.practiceArea === user.practiceArea &&
-          networkService.getConnectionStatus(lawyer.id) !== "connected",
+          networkService.getConnectionStatus(lawyer.id, user.id) !== "connected",
       );
     setSimilarProfiles(matches.slice(0, SIMILAR_PROFILES_LIMIT));
   };
@@ -106,7 +106,7 @@ export function ProfilePage() {
   useEffect(() => {
     if (!user) return;
     postService.seedIfEmpty();
-    networkService.seedIfEmpty();
+    networkService.seedIfEmpty(user.id);
     commentService.seedIfEmpty();
     messageService.seedIfEmpty();
     setPosts(postService.byAuthor(user.id));
@@ -305,14 +305,14 @@ export function ProfilePage() {
   };
 
   const handleConnectSimilar = (lawyerId: string) => {
-    networkService.sendRequest(lawyerId);
+    networkService.sendRequest(lawyerId, user.id);
     refreshSimilarProfiles();
   };
 
   const strength = calculateProfileStrength(user);
   const incompleteItems = strength.items.filter((item) => !item.done);
   const strengthMeta = strengthLabel(strength.percent);
-  const connectionsCount = networkService.connectedCount();
+  const connectionsCount = networkService.connectedCount(user.id);
 
   return (
     <div className="profile-page">

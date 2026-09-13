@@ -55,20 +55,21 @@ export function LawyerProfilePage() {
   const [endorsementsTick, setEndorsementsTick] = useState(0);
 
   const refreshSimilarProfiles = (current: LawyerProfile) => {
+    if (!currentUser) return;
     const matches = networkService
-      .getDirectory(undefined, currentUser?.id)
+      .getDirectory(undefined, currentUser.id)
       .filter(
         (candidate) =>
           candidate.id !== current.id &&
           candidate.practiceArea === current.practiceArea &&
-          networkService.getConnectionStatus(candidate.id) !== "connected",
+          networkService.getConnectionStatus(candidate.id, currentUser.id) !== "connected",
       );
     setSimilarProfiles(matches.slice(0, SIMILAR_PROFILES_LIMIT));
   };
 
   useEffect(() => {
-    if (!lawyerId) return;
-    networkService.seedIfEmpty();
+    if (!lawyerId || !currentUser) return;
+    networkService.seedIfEmpty(currentUser.id);
     postService.seedIfEmpty();
     commentService.seedIfEmpty();
     messageService.seedIfEmpty();
@@ -76,11 +77,19 @@ export function LawyerProfilePage() {
 
     const found = networkService.getById(lawyerId);
     setLawyer(found);
-    setStatus(networkService.getConnectionStatus(lawyerId));
+    setStatus(networkService.getConnectionStatus(lawyerId, currentUser.id));
     setPosts(postService.byAuthor(lawyerId));
     if (found) refreshSimilarProfiles(found);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lawyerId, networkService, postService, commentService, messageService, skillEndorsementService]);
+  }, [
+    lawyerId,
+    networkService,
+    postService,
+    commentService,
+    messageService,
+    skillEndorsementService,
+    currentUser?.id,
+  ]);
 
   if (lawyer === undefined) {
     return null;
@@ -105,13 +114,13 @@ export function LawyerProfilePage() {
 
   const handleConnectAction = () => {
     if (status === "none") {
-      networkService.sendRequest(lawyer.id);
+      networkService.sendRequest(lawyer.id, currentUser.id);
     } else if (status === "pending-incoming") {
-      networkService.accept(lawyer.id);
+      networkService.accept(lawyer.id, currentUser.id);
     } else {
       return;
     }
-    setStatus(networkService.getConnectionStatus(lawyer.id));
+    setStatus(networkService.getConnectionStatus(lawyer.id, currentUser.id));
     refreshSimilarProfiles(lawyer);
   };
 
@@ -141,9 +150,9 @@ export function LawyerProfilePage() {
   };
 
   const handleConnectFromCard = (targetLawyerId: string) => {
-    networkService.sendRequest(targetLawyerId);
+    networkService.sendRequest(targetLawyerId, currentUser.id);
     if (targetLawyerId === lawyer.id) {
-      setStatus(networkService.getConnectionStatus(lawyer.id));
+      setStatus(networkService.getConnectionStatus(lawyer.id, currentUser.id));
     }
     refreshSimilarProfiles(lawyer);
     refreshPosts();

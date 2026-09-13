@@ -36,10 +36,12 @@ export function Navbar() {
 
   // Osvežava brojače na pozivnice i nepročitane poruke pri svakoj promeni rute.
   useEffect(() => {
-    setPendingCount(networkService.getPendingIncoming().length);
+    if (user) {
+      setPendingCount(networkService.getPendingIncoming(user.id).length);
+    }
     setUnreadCount(messageService.unreadCount());
     setMenuOpen(false);
-  }, [location.pathname, networkService, messageService]);
+  }, [location.pathname, networkService, messageService, user]);
 
   const tabs: NavTab[] = [
     { key: "pocetna", to: "/feed", label: "Početna", icon: <HomeIcon /> },

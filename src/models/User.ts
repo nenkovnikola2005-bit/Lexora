@@ -29,6 +29,7 @@ export interface User {
   openToCollaboration?: OpenToCollaboration;
   recommendations?: Recommendation[];
   createdAt: string;
+  passwordChangedAt: string;
 }
 
 export interface RegisterInput {

@@ -8,53 +8,125 @@ import { useAuth } from "../context/AuthContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { AuthService } from "../services/AuthService";
 import type { AccountSettings } from "../models/Settings";
+import { pluralizeSr } from "../utils/pluralizeSr";
 import "./SettingsPage.scss";
 
 const DEFAULT_SETTINGS: AccountSettings = {
   profileVisibility: "public",
-  emailNotifications: true,
+  searchVisible: true,
+  connectionsVisibility: "onlyMe",
+  anonymousBrowsing: false,
+  connectionRequestNotifications: true,
+  postReactionNotifications: true,
   messageNotifications: true,
-  newsletterNotifications: false,
+  skillEndorsementNotifications: false,
+  weeklyDigest: "monday",
+  twoFactorEnabled: false,
 };
 
-const VISIBILITY_OPTIONS: {
-  value: AccountSettings["profileVisibility"];
-  label: string;
-  description: string;
-}[] = [
-  { value: "public", label: "Javno", description: "Profil je vidljiv svim korisnicima Lexore." },
-  {
-    value: "connections",
-    label: "Samo veze",
-    description: "Profil vide samo vaše potvrđene veze.",
-  },
-  { value: "private", label: "Privatno", description: "Profil je vidljiv samo vama." },
+const VISIBILITY_OPTIONS = [
+  { value: "public", label: "Svi na Lexori" },
+  { value: "connections", label: "Samo veze" },
+  { value: "private", label: "Samo ja" },
 ];
+
+const CONNECTIONS_VISIBILITY_OPTIONS = [
+  { value: "onlyMe", label: "Samo ja" },
+  { value: "level1", label: "Veze 1. nivoa" },
+];
+
+const WEEKLY_DIGEST_OPTIONS = [
+  { value: "off", label: "Isključeno" },
+  { value: "monday", label: "Ponedeljkom" },
+  { value: "friday", label: "Petkom" },
+];
+
+function formatPasswordAge(iso: string | undefined): string {
+  const changed = iso ? new Date(iso) : null;
+  if (!changed || Number.isNaN(changed.getTime())) {
+    return "Nema podataka o poslednjoj izmeni.";
+  }
+  const now = new Date();
+  const months = (now.getFullYear() - changed.getFullYear()) * 12 + (now.getMonth() - changed.getMonth());
+  if (months <= 0) return "Nedavno promenjena.";
+  return `Poslednja izmena pre ${months} ${pluralizeSr(months, "mesec", "meseca", "meseci")}.`;
+}
+
+interface SettingsRowProps {
+  title: string;
+  description: string;
+  control: ReactNode;
+  titleColor?: "default" | "danger";
+}
+
+// Red opcije podešavanja: naslov + opis levo, kontrola (switch/select/dugme) desno.
+function SettingsRow({ title, description, control, titleColor = "default" }: SettingsRowProps) {
+  return (
+    <div className="settings-page__row">
+      <div className="settings-page__row-text">
+        <p
+          className={
+            titleColor === "danger"
+              ? "settings-page__row-title settings-page__row-title--danger"
+              : "settings-page__row-title"
+          }
+        >
+          {title}
+        </p>
+        <p className="settings-page__row-description">{description}</p>
+      </div>
+      <div className="settings-page__row-control">{control}</div>
+    </div>
+  );
+}
+
+function ToggleSwitch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+}) {
+  return (
+    <input
+      type="checkbox"
+      className="settings-page__switch"
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+      aria-label={label}
+    />
+  );
+}
 
 export function SettingsPage() {
   const { section } = useParams<{ section: string }>();
-  const { user, logout } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
   const authService = useMemo(() => new AuthService(), []);
 
-  const [settings, setSettings] = useLocalStorage<AccountSettings>(
+  const [storedSettings, setStoredSettings] = useLocalStorage<AccountSettings>(
     `lexora_settings_${user?.id ?? "guest"}`,
     DEFAULT_SETTINGS,
   );
+  const settings: AccountSettings = { ...DEFAULT_SETTINGS, ...storedSettings };
 
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [accountNotice, setAccountNotice] = useState<string | null>(null);
 
   if (!user) {
     return null;
   }
 
   const updateSettings = (patch: Partial<AccountSettings>) => {
-    setSettings((current) => ({ ...current, ...patch }));
+    setStoredSettings({ ...settings, ...patch });
   };
 
   const handleChangePassword = async (event: FormEvent) => {
@@ -72,6 +144,15 @@ export function SettingsPage() {
     } finally {
       setPasswordSubmitting(false);
     }
+  };
+
+  const handleToggleCollaboration = (enabled: boolean) => {
+    updateUser({
+      openToCollaboration: {
+        enabled,
+        note: user.openToCollaboration?.note ?? "",
+      },
+    });
   };
 
   // Izvoz podataka korisnika kao JSON fajl (Blob + privremeni <a> klik).
@@ -107,137 +188,291 @@ export function SettingsPage() {
 
   let panel: ReactNode;
 
-  if (section === "profil") {
+  if (section === "nalog") {
+    panel = (
+      <section className="settings-page__panel">
+        <h2>Nalog i prijava</h2>
+        <p className="settings-page__panel-description">
+          Podaci za pristup i verifikacija licence.
+        </p>
+
+        <SettingsRow
+          title="E-mail adresa"
+          description={`${user.email} · potvrđena`}
+          control={
+            <Button variant="outline" size="small" onClick={() => setAccountNotice("email")}>
+              Promeni
+            </Button>
+          }
+        />
+
+        <SettingsRow
+          title="Lozinka"
+          description={formatPasswordAge(user.passwordChangedAt)}
+          control={
+            <Button variant="outline" size="small" onClick={() => setShowPasswordForm((v) => !v)}>
+              Promeni lozinku
+            </Button>
+          }
+        />
+
+        {showPasswordForm && (
+          <form className="settings-page__password-form" onSubmit={handleChangePassword}>
+            <FormField
+              id="current-password"
+              label="Trenutna lozinka"
+              variant="password"
+              value={currentPassword}
+              onChange={setCurrentPassword}
+              required
+            />
+            <FormField
+              id="new-password"
+              label="Nova lozinka"
+              variant="password"
+              value={newPassword}
+              onChange={setNewPassword}
+              required
+            />
+            {passwordError && (
+              <p className="settings-page__form-error" role="alert">
+                {passwordError}
+              </p>
+            )}
+            {passwordSuccess && (
+              <p className="settings-page__form-success" role="status">
+                {passwordSuccess}
+              </p>
+            )}
+            <Button
+              type="submit"
+              size="small"
+              disabled={passwordSubmitting || !currentPassword || !newPassword}
+            >
+              {passwordSubmitting ? "Menjanje..." : "Sačuvaj novu lozinku"}
+            </Button>
+          </form>
+        )}
+
+        <SettingsRow
+          title="Dvofaktorska potvrda"
+          description="Dodatni kod pri prijavi sa novog uređaja."
+          control={
+            <ToggleSwitch
+              checked={settings.twoFactorEnabled}
+              onChange={(checked) => updateSettings({ twoFactorEnabled: checked })}
+              label="Dvofaktorska potvrda"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Broj u imeniku komore"
+          description={
+            user.barNumber
+              ? `${user.barNumber}${user.city ? ` · Advokatska komora ${user.city}` : ""} · ${
+                  user.licenseVerified ? "verifikovano" : "na čekanju provere"
+                }`
+              : "Još uvek niste uneli broj u imeniku komore."
+          }
+          control={
+            <Button variant="outline" size="small" onClick={() => setAccountNotice("document")}>
+              Prikaži dokument
+            </Button>
+          }
+        />
+
+        {accountNotice && (
+          <p className="settings-page__form-success" role="status">
+            {accountNotice === "email"
+              ? "Promena email adrese još uvek nije dostupna."
+              : "Pregled dokumenta još uvek nije dostupan."}
+          </p>
+        )}
+      </section>
+    );
+  } else if (section === "profil") {
     panel = (
       <section className="settings-page__panel">
         <h2>Profil i vidljivost</h2>
         <p className="settings-page__panel-description">
-          Odaberite ko može da vidi vaš profil na Lexori.
+          Ko vidi vaš profil i kako se prikazujete u pretrazi i predlozima.
         </p>
-        <div
-          className="settings-page__radio-group"
-          role="radiogroup"
-          aria-label="Vidljivost profila"
-        >
-          {VISIBILITY_OPTIONS.map((option) => (
-            <label key={option.value} className="settings-page__radio">
-              <input
-                type="radio"
-                name="profileVisibility"
-                checked={settings.profileVisibility === option.value}
-                onChange={() => updateSettings({ profileVisibility: option.value })}
-              />
-              <span>
-                <span className="settings-page__radio-label">{option.label}</span>
-                <span className="settings-page__radio-description">{option.description}</span>
-              </span>
-            </label>
-          ))}
-        </div>
+
+        <SettingsRow
+          title="Vidljivost profila"
+          description="Ko može da otvori vaš pun profil."
+          control={
+            <FormField
+              id="profile-visibility"
+              label=""
+              variant="select"
+              value={settings.profileVisibility}
+              onChange={(value) =>
+                updateSettings({ profileVisibility: value as AccountSettings["profileVisibility"] })
+              }
+              options={VISIBILITY_OPTIONS}
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Prikazivanje u pretrazi"
+          description="Da li se pojavljujete kada kolege pretražuju po oblasti prava i gradu."
+          control={
+            <ToggleSwitch
+              checked={settings.searchVisible}
+              onChange={(checked) => updateSettings({ searchVisible: checked })}
+              label="Prikazivanje u pretrazi"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Ko vidi vaše veze"
+          description="Lista vaših veza je vidljiva samo vama ili i vezama 1. nivoa."
+          control={
+            <FormField
+              id="connections-visibility"
+              label=""
+              variant="select"
+              value={settings.connectionsVisibility}
+              onChange={(value) =>
+                updateSettings({
+                  connectionsVisibility: value as AccountSettings["connectionsVisibility"],
+                })
+              }
+              options={CONNECTIONS_VISIBILITY_OPTIONS}
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Anonimni pregled profila"
+          description="Kada gledate tuđi profil, ne prikazuje se vaše ime."
+          control={
+            <ToggleSwitch
+              checked={settings.anonymousBrowsing}
+              onChange={(checked) => updateSettings({ anonymousBrowsing: checked })}
+              label="Anonimni pregled profila"
+            />
+          }
+        />
+
+        <SettingsRow
+          title={"Oznaka „Otvoren za saradnju”"}
+          description="Prikazuje se na vrhu profila i u predlozima za povezivanje."
+          control={
+            <ToggleSwitch
+              checked={user.openToCollaboration?.enabled ?? false}
+              onChange={handleToggleCollaboration}
+              label="Oznaka Otvoren za saradnju"
+            />
+          }
+        />
       </section>
     );
   } else if (section === "obavestenja") {
     panel = (
       <section className="settings-page__panel">
         <h2>Obaveštenja</h2>
-        <div className="settings-page__toggle-list">
-          <label className="settings-page__toggle">
-            <span>Email obaveštenja</span>
-            <input
-              type="checkbox"
-              checked={settings.emailNotifications}
-              onChange={(event) =>
-                updateSettings({ emailNotifications: event.target.checked })
-              }
-            />
-          </label>
-          <label className="settings-page__toggle">
-            <span>Obaveštenja o porukama</span>
-            <input
-              type="checkbox"
-              checked={settings.messageNotifications}
-              onChange={(event) =>
-                updateSettings({ messageNotifications: event.target.checked })
-              }
-            />
-          </label>
-          <label className="settings-page__toggle">
-            <span>Newsletter</span>
-            <input
-              type="checkbox"
-              checked={settings.newsletterNotifications}
-              onChange={(event) =>
-                updateSettings({ newsletterNotifications: event.target.checked })
-              }
-            />
-          </label>
-        </div>
-      </section>
-    );
-  } else if (section === "nalog") {
-    panel = (
-      <section className="settings-page__panel">
-        <h2>Nalog i prijava</h2>
-        <p className="settings-page__account-email">
-          Prijavljeni ste kao <strong>{user.email}</strong>
+        <p className="settings-page__panel-description">
+          Šta vam stiže na mejl, a šta samo u aplikaciju.
         </p>
 
-        <form className="settings-page__password-form" onSubmit={handleChangePassword}>
-          <FormField
-            id="current-password"
-            label="Trenutna lozinka"
-            variant="password"
-            value={currentPassword}
-            onChange={setCurrentPassword}
-            required
-          />
-          <FormField
-            id="new-password"
-            label="Nova lozinka"
-            variant="password"
-            value={newPassword}
-            onChange={setNewPassword}
-            required
-          />
-          {passwordError && (
-            <p className="settings-page__form-error" role="alert">
-              {passwordError}
-            </p>
-          )}
-          {passwordSuccess && (
-            <p className="settings-page__form-success" role="status">
-              {passwordSuccess}
-            </p>
-          )}
-          <Button
-            type="submit"
-            disabled={passwordSubmitting || !currentPassword || !newPassword}
-          >
-            {passwordSubmitting ? "Menjanje..." : "Promeni lozinku"}
-          </Button>
-        </form>
+        <SettingsRow
+          title="Nove pozivnice za povezivanje"
+          description="Mejl i obaveštenje u aplikaciji."
+          control={
+            <ToggleSwitch
+              checked={settings.connectionRequestNotifications}
+              onChange={(checked) => updateSettings({ connectionRequestNotifications: checked })}
+              label="Nove pozivnice za povezivanje"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Reakcije i komentari na moje objave"
+          description="Sažetak jednom dnevno umesto svakog pojedinačnog."
+          control={
+            <ToggleSwitch
+              checked={settings.postReactionNotifications}
+              onChange={(checked) => updateSettings({ postReactionNotifications: checked })}
+              label="Reakcije i komentari na moje objave"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Poruke"
+          description="Obaveštenje čim poruka stigne."
+          control={
+            <ToggleSwitch
+              checked={settings.messageNotifications}
+              onChange={(checked) => updateSettings({ messageNotifications: checked })}
+              label="Poruke"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Potvrde veština od kolega"
+          description="Kada vam kolega potvrdi veštinu na profilu."
+          control={
+            <ToggleSwitch
+              checked={settings.skillEndorsementNotifications}
+              onChange={(checked) => updateSettings({ skillEndorsementNotifications: checked })}
+              label="Potvrde veština od kolega"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Nedeljni pregled mreže"
+          description="Šta su vaše veze objavljivale i ko je gledao vaš profil."
+          control={
+            <FormField
+              id="weekly-digest"
+              label=""
+              variant="select"
+              value={settings.weeklyDigest}
+              onChange={(value) =>
+                updateSettings({ weeklyDigest: value as AccountSettings["weeklyDigest"] })
+              }
+              options={WEEKLY_DIGEST_OPTIONS}
+            />
+          }
+        />
       </section>
     );
   } else if (section === "podaci") {
     panel = (
       <section className="settings-page__panel">
         <h2>Podaci i nalog</h2>
-        <p className="settings-page__panel-description">
-          Preuzmite kopiju svojih podataka sa Lexore u JSON formatu.
-        </p>
-        <Button variant="secondary" onClick={handleExportData}>
-          Preuzmi moje podatke
-        </Button>
+
+        <SettingsRow
+          title="Preuzimanje podataka"
+          description="Arhiva vaših objava, poruka i veza u .json formatu."
+          control={
+            <Button variant="outline" size="small" onClick={handleExportData}>
+              Zatraži arhivu
+            </Button>
+          }
+        />
 
         <div className="settings-page__danger-zone">
-          <h3>Opasna zona</h3>
-          <p className="settings-page__panel-description">
-            Brisanje naloga je trajno i briše sve podatke sačuvane na ovom uređaju.
-          </p>
           {!confirmingDelete ? (
-            <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
-              Obriši nalog
-            </Button>
+            <SettingsRow
+              title="Gašenje naloga"
+              description="Profil, objave i poruke se trajno brišu sa ovog uređaja."
+              titleColor="danger"
+              control={
+                <Button variant="danger" size="small" onClick={() => setConfirmingDelete(true)}>
+                  Ugasi nalog
+                </Button>
+              }
+            />
           ) : (
             <div className="settings-page__danger-confirm">
               <p>Da li ste sigurni? Ova radnja je nepovratna.</p>
@@ -258,17 +493,24 @@ export function SettingsPage() {
     panel = (
       <div className="settings-page__not-found">
         <p>Ova sekcija podešavanja ne postoji.</p>
-        <Link to="/settings/profil">Nazad na podešavanja</Link>
+        <Link to="/settings/nalog">Nazad na podešavanja</Link>
       </div>
     );
   }
 
   return (
     <div className="settings-page">
-      <aside className="settings-page__menu">
-        <SettingsMenu />
-      </aside>
-      <div className="settings-page__content">{panel}</div>
+      <div className="settings-page__header">
+        <h1>Podešavanja</h1>
+        <p>Upravljajte nalogom, vidljivošću profila i obaveštenjima.</p>
+      </div>
+
+      <div className="settings-page__layout">
+        <aside className="settings-page__menu">
+          <SettingsMenu />
+        </aside>
+        <div className="settings-page__content">{panel}</div>
+      </div>
     </div>
   );
 }

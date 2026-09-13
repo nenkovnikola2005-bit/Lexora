@@ -11,6 +11,10 @@
     letter-spacing: var(--font-label-letter-spacing);
     text-transform: uppercase;
     color: var(--color-text-secondary);
+
+    &:empty {
+      display: none;
+    }
   }
 
   &__control {

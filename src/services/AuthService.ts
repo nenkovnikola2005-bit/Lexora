@@ -62,6 +62,7 @@ export class AuthService implements IAuthService {
       education: [],
       skills: [],
       createdAt: new Date().toISOString(),
+      passwordChangedAt: new Date().toISOString(),
       passwordHash,
     };
 
@@ -123,6 +124,7 @@ export class AuthService implements IAuthService {
     accounts[index] = {
       ...accounts[index],
       passwordHash: await hashPassword(newPassword),
+      passwordChangedAt: new Date().toISOString(),
     };
     this.accountsStorage.set(accounts);
   }
@@ -195,6 +197,7 @@ export class AuthService implements IAuthService {
         },
       ],
       createdAt: new Date().toISOString(),
+      passwordChangedAt: "2026-05-10T09:00:00.000Z",
       passwordHash,
     };
     accounts.push(demoAccount);

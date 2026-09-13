@@ -1,11 +1,15 @@
 import { NavLink, useParams } from "react-router-dom";
+import { BellIcon } from "../ui/icons/BellIcon";
+import { EyeIcon } from "../ui/icons/EyeIcon";
+import { LockIcon } from "../ui/icons/LockIcon";
+import { UserIcon } from "../ui/icons/UserIcon";
 import "./SettingsMenu.scss";
 
 const SECTIONS = [
-  { slug: "profil", label: "Profil i vidljivost" },
-  { slug: "obavestenja", label: "Obaveštenja" },
-  { slug: "nalog", label: "Nalog i prijava" },
-  { slug: "podaci", label: "Podaci i nalog" },
+  { slug: "nalog", label: "Nalog i prijava", icon: <UserIcon /> },
+  { slug: "profil", label: "Profil i vidljivost", icon: <EyeIcon /> },
+  { slug: "obavestenja", label: "Obaveštenja", icon: <BellIcon /> },
+  { slug: "podaci", label: "Podaci i nalog", icon: <LockIcon /> },
 ];
 
 // Bočni meni podešavanja — aktivna sekcija se očitava iz URL parametra.
@@ -24,6 +28,7 @@ export function SettingsMenu() {
               : "settings-menu__item"
           }
         >
+          <span className="settings-menu__icon">{item.icon}</span>
           {item.label}
         </NavLink>
       ))}

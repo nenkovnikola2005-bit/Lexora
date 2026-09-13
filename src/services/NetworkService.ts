@@ -5,10 +5,12 @@ import type {
   NetworkFilters,
 } from "../models/Lawyer";
 import { matchesFilters } from "../models/Lawyer";
+import type { User } from "../models/User";
 import { StorageService } from "./StorageService";
 
 const DIRECTORY_KEY = "lexora_network_directory";
 const CONNECTIONS_KEY = "lexora_network_connections";
+const ACCOUNTS_KEY = "lexora_accounts";
 
 type ConnectionsMap = Record<string, ConnectionStatus>;
 
@@ -23,10 +25,12 @@ const SEED_CONNECTIONS: ConnectionsMap = {
 export class NetworkService {
   private directoryStorage: StorageService<LawyerProfile[]>;
   private connectionsStorage: StorageService<ConnectionsMap>;
+  private accountsStorage: StorageService<User[]>;
 
   constructor() {
     this.directoryStorage = new StorageService<LawyerProfile[]>(DIRECTORY_KEY);
     this.connectionsStorage = new StorageService<ConnectionsMap>(CONNECTIONS_KEY);
+    this.accountsStorage = new StorageService<User[]>(ACCOUNTS_KEY);
   }
 
   seedIfEmpty(): void {
@@ -40,15 +44,48 @@ export class NetworkService {
     }
   }
 
-  getDirectory(filters?: NetworkFilters): LawyerProfile[] {
-    const lawyers = this.directoryStorage.get() ?? [];
+  private mapUserToLawyer(user: User): LawyerProfile {
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      headline: user.headline,
+      practiceArea: user.practiceArea ?? "",
+      city: user.city ?? "",
+      connectionLevel: 2,
+      mutualConnections: 0,
+      avatarInitials: user.avatarInitials,
+      about: user.bio,
+      licenseVerified: user.licenseVerified,
+      experience: user.experience,
+      education: user.education,
+      skills: user.skills,
+      openToCollaboration: user.openToCollaboration,
+      recommendations: user.recommendations,
+    };
+  }
+
+  // Stvarno registrovani nalozi (uključujući demo nalog) — odvojeni od
+  // seed direktorijuma, ali moraju biti vidljivi u pretrazi i predlozima.
+  private getRegisteredLawyers(): LawyerProfile[] {
+    const accounts = this.accountsStorage.get() ?? [];
+    return accounts.map((account) => this.mapUserToLawyer(account));
+  }
+
+  private getAllLawyers(): LawyerProfile[] {
+    return [...(this.directoryStorage.get() ?? []), ...this.getRegisteredLawyers()];
+  }
+
+  getDirectory(filters?: NetworkFilters, excludeUserId?: string): LawyerProfile[] {
+    const lawyers = excludeUserId
+      ? this.getAllLawyers().filter((lawyer) => lawyer.id !== excludeUserId)
+      : this.getAllLawyers();
     if (!filters) return lawyers;
     return lawyers.filter((lawyer) => matchesFilters(lawyer, filters));
   }
 
   getById(id: string): LawyerProfile | null {
-    const lawyers = this.directoryStorage.get() ?? [];
-    return lawyers.find((lawyer) => lawyer.id === id) ?? null;
+    return this.getAllLawyers().find((lawyer) => lawyer.id === id) ?? null;
   }
 
   getConnectionStatus(lawyerId: string): ConnectionStatus {
@@ -58,8 +95,9 @@ export class NetworkService {
 
   getPendingIncoming(): LawyerProfile[] {
     const connections = this.connectionsStorage.get() ?? {};
-    const lawyers = this.directoryStorage.get() ?? [];
-    return lawyers.filter((lawyer) => connections[lawyer.id] === "pending-incoming");
+    return this.getAllLawyers().filter(
+      (lawyer) => connections[lawyer.id] === "pending-incoming",
+    );
   }
 
   connectedCount(): number {

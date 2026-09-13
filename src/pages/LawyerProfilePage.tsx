@@ -56,7 +56,7 @@ export function LawyerProfilePage() {
 
   const refreshSimilarProfiles = (current: LawyerProfile) => {
     const matches = networkService
-      .getDirectory()
+      .getDirectory(undefined, currentUser?.id)
       .filter(
         (candidate) =>
           candidate.id !== current.id &&

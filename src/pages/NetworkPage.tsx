@@ -5,6 +5,7 @@ import { Button } from "../components/ui/Button";
 import { Pagination } from "../components/ui/Pagination";
 import { FilterPanel } from "../components/network/FilterPanel";
 import { LawyerCard } from "../components/network/LawyerCard";
+import { useAuth } from "../context/AuthContext";
 import { usePagination } from "../hooks/usePagination";
 import { NetworkService } from "../services/NetworkService";
 import type { LawyerProfile, NetworkFilters } from "../models/Lawyer";
@@ -22,6 +23,7 @@ const EMPTY_FILTERS: NetworkFilters = {
 const PAGE_SIZE = 6;
 
 export function NetworkPage() {
+  const { user } = useAuth();
   const networkService = useMemo(() => new NetworkService(), []);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -31,7 +33,7 @@ export function NetworkPage() {
   const [pendingIncoming, setPendingIncoming] = useState<LawyerProfile[]>([]);
 
   const refreshDirectory = (nextFilters: NetworkFilters) => {
-    setDirectory(networkService.getDirectory(nextFilters));
+    setDirectory(networkService.getDirectory(nextFilters, user?.id));
   };
 
   const refreshPending = () => {
@@ -42,12 +44,13 @@ export function NetworkPage() {
   // uzima u obzir i globalnu pretragu iz navbar-a (?q=...).
   useEffect(() => {
     networkService.seedIfEmpty();
-    setAllLawyers(networkService.getDirectory());
+    setAllLawyers(networkService.getDirectory(undefined, user?.id));
     const initialFilters = { ...EMPTY_FILTERS, query: searchParams.get("q") ?? "" };
     setFilters(initialFilters);
     refreshDirectory(initialFilters);
     refreshPending();
-  }, [networkService]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [networkService, user?.id]);
 
   const { page, totalPages, pageItems, goToPage, nextPage, prevPage } = usePagination(
     directory,

@@ -57,7 +57,7 @@ export function FeedPage() {
 
   const refreshSuggestions = () => {
     const notConnected = networkService
-      .getDirectory()
+      .getDirectory(undefined, user?.id)
       .filter((lawyer) => networkService.getConnectionStatus(lawyer.id) === "none");
     setSuggestions(notConnected.slice(0, SUGGESTIONS_LIMIT));
   };
@@ -73,7 +73,7 @@ export function FeedPage() {
     setPosts(postService.list(sort));
     refreshSuggestions();
     refreshGroups();
-  }, [postService, networkService, commentService, messageService, groupService, sort]);
+  }, [postService, networkService, commentService, messageService, groupService, sort, user?.id]);
 
   if (!user) {
     return null;

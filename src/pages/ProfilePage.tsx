@@ -94,7 +94,7 @@ export function ProfilePage() {
   const refreshSimilarProfiles = () => {
     if (!user) return;
     const matches = networkService
-      .getDirectory()
+      .getDirectory(undefined, user.id)
       .filter(
         (lawyer) =>
           lawyer.practiceArea === user.practiceArea &&

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { SettingsMenu } from "../components/settings/SettingsMenu";
 import { Button } from "../components/ui/Button";
 import { FormField } from "../components/ui/FormField";
@@ -33,7 +33,8 @@ const VISIBILITY_OPTIONS: {
 
 export function SettingsPage() {
   const { section } = useParams<{ section: string }>();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const authService = useMemo(() => new AuthService(), []);
 
   const [settings, setSettings] = useLocalStorage<AccountSettings>(
@@ -46,6 +47,7 @@ export function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   if (!user) {
     return null;
@@ -70,6 +72,37 @@ export function SettingsPage() {
     } finally {
       setPasswordSubmitting(false);
     }
+  };
+
+  // Izvoz podataka korisnika kao JSON fajl (Blob + privremeni <a> klik).
+  const handleExportData = () => {
+    const accounts = JSON.parse(localStorage.getItem("lexora_accounts") ?? "[]") as Array<
+      Record<string, unknown>
+    >;
+    const account = accounts.find((item) => item.id === user.id);
+    const exportPayload = {
+      user: account ? { ...account, passwordHash: undefined } : user,
+      settings,
+      exportedAt: new Date().toISOString(),
+    };
+
+    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `lexora-podaci-${user.id}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteAccount = () => {
+    localStorage.clear();
+    logout();
+    navigate("/login", { replace: true });
   };
 
   let panel: ReactNode;
@@ -179,10 +212,46 @@ export function SettingsPage() {
         </form>
       </section>
     );
+  } else if (section === "podaci") {
+    panel = (
+      <section className="settings-page__panel">
+        <h2>Podaci i nalog</h2>
+        <p className="settings-page__panel-description">
+          Preuzmite kopiju svojih podataka sa Lexore u JSON formatu.
+        </p>
+        <Button variant="secondary" onClick={handleExportData}>
+          Preuzmi moje podatke
+        </Button>
+
+        <div className="settings-page__danger-zone">
+          <h3>Opasna zona</h3>
+          <p className="settings-page__panel-description">
+            Brisanje naloga je trajno i briše sve podatke sačuvane na ovom uređaju.
+          </p>
+          {!confirmingDelete ? (
+            <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
+              Obriši nalog
+            </Button>
+          ) : (
+            <div className="settings-page__danger-confirm">
+              <p>Da li ste sigurni? Ova radnja je nepovratna.</p>
+              <div className="settings-page__danger-actions">
+                <Button variant="danger" onClick={handleDeleteAccount}>
+                  Da, obriši nalog
+                </Button>
+                <Button variant="outline" onClick={() => setConfirmingDelete(false)}>
+                  Otkaži
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    );
   } else {
     panel = (
       <div className="settings-page__not-found">
-        <p>Ova sekcija podešavanja još nije dostupna.</p>
+        <p>Ova sekcija podešavanja ne postoji.</p>
         <Link to="/settings/profil">Nazad na podešavanja</Link>
       </div>
     );

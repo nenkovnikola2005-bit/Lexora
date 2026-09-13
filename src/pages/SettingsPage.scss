@@ -29,6 +29,13 @@
     color: var(--color-text-primary);
     margin-bottom: 0.5rem;
   }
+
+  h3 {
+    font-size: var(--font-name-size);
+    font-weight: var(--font-name-weight);
+    color: var(--color-text-primary);
+    margin-bottom: 0.375rem;
+  }
 }
 
 .settings-page__panel-description {
@@ -166,4 +173,30 @@
 .settings-page__form-success {
   font-size: var(--font-meta-size);
   color: var(--color-success);
+}
+
+// --- Podaci i nalog ---
+
+.settings-page__danger-zone {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.settings-page__danger-confirm {
+  background-color: var(--color-accent-subtle);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.75rem;
+
+  p {
+    font-size: var(--font-meta-size);
+    color: var(--color-text-secondary);
+    margin-bottom: 0.75rem;
+  }
+}
+
+.settings-page__danger-actions {
+  display: flex;
+  gap: 0.5rem;
 }

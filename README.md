@@ -75,20 +75,27 @@ Ukupno 9 stranica sa jasno različitim sadržajem (rubrika traži ≥5).
 | `Button` | `src/components/ui/Button.tsx` | Svuda — Login, Register, Feed, Network, profili, Messages, Settings |
 | `Avatar` | `src/components/ui/Avatar.tsx` | Navbar, Feed (objave i kompozitor), Network, profili, Messages |
 | `FormField` | `src/components/ui/FormField.tsx` | Login, Register, `FilterPanel` (Network), Settings |
+| `Modal` | `src/components/ui/Modal.tsx` | `PostModal`, `SendPostModal`, `NewConversationModal` (Feed i Messages) |
 | `ProfileHeader` | `src/components/profile/ProfileHeader.tsx` | `ProfilePage` i `LawyerProfilePage` |
-| `PostCard` | `src/components/feed/PostCard.tsx` | `FeedPage` i `ProfilePage` (sekcija „Aktivnost") |
+| `PostCard` | `src/components/feed/PostCard.tsx` | `FeedPage`, `ProfilePage` (sekcija „Aktivnost") i `LawyerProfilePage` |
+| `SuggestionCard` | `src/components/feed/SuggestionCard.tsx` | `FeedPage`, `ProfilePage`, `LawyerProfilePage` („Slični profili") |
 | `Pagination` | `src/components/ui/Pagination.tsx` | `NetworkPage` |
 
 ### TypeScript klase (≥2, sa metodama, aktivno korišćene)
 
-Sve implementiraju `IStorageService`/`IAuthService` iz `src/models/interfaces.ts`
-i instanciraju se preko `useMemo` u stranicama koje ih koriste.
+`StorageService` i `AuthService` implementiraju `IStorageService`/`IAuthService`
+iz `src/models/interfaces.ts`; ostale servisne klase slede isti obrazac
+(privatno `StorageService` polje, javne metode) ali nemaju poseban interfejs.
+Sve se instanciraju preko `useMemo` u stranicama koje ih koriste.
 
 - `StorageService<T>` — `src/services/StorageService.ts` (`get`/`set`/`remove`, generički localStorage wrapper)
 - `AuthService` — `src/services/AuthService.ts` (`register`, `login`, `logout`, `updateUser`, `changePassword`, `seedDemoAccount`)
-- `NetworkService` — `src/services/NetworkService.ts`
-- `PostService` — `src/services/PostService.ts`
+- `NetworkService` — `src/services/NetworkService.ts` (direktorijum, filteri/pretraga, recipročne veze po nalogu)
+- `PostService` — `src/services/PostService.ts` (objave, lajkovi, čuvanje, ankete)
 - `MessageService` — `src/services/MessageService.ts`
+- `CommentService` — `src/services/CommentService.ts`
+- `GroupService` — `src/services/GroupService.ts`
+- `SkillEndorsementService` — `src/services/SkillEndorsementService.ts`
 
 ### TypeScript interfejsi sa metodama (≥2, aktivno korišćeni)
 
@@ -137,9 +144,9 @@ kao gore. Zaštita ruta: `src/components/layout/ProtectedRoute.tsx`.
 ### Modeli i komponente (odvojeni folderi)
 
 `src/models/` (tipovi i domenska logika: `User`, `Post`, `Lawyer`, `Message`,
-`Settings`, `interfaces`) odvojeno od `src/components/` (UI, grupisano po
-domenu: `ui/`, `layout/`, `feed/`, `network/`, `profile/`, `messages/`,
-`settings/`) i `src/pages/` (ruta-nivo kompozicija).
+`Comment`, `Group`, `Settings`, `interfaces`) odvojeno od `src/components/`
+(UI, grupisano po domenu: `ui/`, `layout/`, `feed/`, `network/`, `profile/`,
+`messages/`, `settings/`) i `src/pages/` (ruta-nivo kompozicija).
 
 ### Nekoliko TypeScript/TSX funkcionalnosti (≥7)
 
@@ -153,6 +160,9 @@ domenu: `ui/`, `layout/`, `feed/`, `network/`, `profile/`, `messages/`,
 8. Filtriranje pravnika — `matchesFilters` u `src/models/Lawyer.ts`
 9. Paginacija — `usePagination` hook
 10. Auto-scroll na poslednju poruku — `MessagesPage.tsx`
+11. Glasanje na anketi u objavi — `votePoll` u `PostService.ts`
+12. Potvrde veština kolega — `toggleEndorse` u `SkillEndorsementService.ts`
+13. Pridruživanje/napuštanje grupa — `toggleJoin` u `GroupService.ts`
 
 ## Pristupačnost i responsivnost
 

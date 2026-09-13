@@ -3,29 +3,43 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.5rem;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  padding: 1.25rem 1rem;
+  box-shadow: 0 1px 1.5px 0 rgb(15 23 41 / 5%);
+  padding-bottom: 1rem;
+  overflow: hidden;
 }
 
-.lawyer-card__link {
+.lawyer-card__cover {
+  width: 100%;
+  height: 3.5rem;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-strong) 100%);
+}
+
+.lawyer-card__avatar-link {
+  margin-top: -2rem;
+  padding: 3px;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+}
+
+.lawyer-card__body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.375rem;
-
-  &:hover .lawyer-card__name {
-    color: var(--color-primary);
-  }
+  gap: 0.1875rem;
+  padding: 0.5rem 0.875rem 0;
 }
 
-.lawyer-card__name {
+.lawyer-card__name-link {
   font-size: var(--font-name-size);
   font-weight: var(--font-name-weight);
   color: var(--color-text-primary);
-  margin-top: 0.375rem;
+
+  &:hover {
+    color: var(--color-primary);
+  }
 }
 
 .lawyer-card__headline {
@@ -34,6 +48,56 @@
 }
 
 .lawyer-card__mutual {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  margin-top: 0.375rem;
   font-size: var(--font-label-size);
   color: var(--color-text-muted);
+}
+
+.lawyer-card__mutual-dots {
+  display: inline-flex;
+
+  span {
+    display: inline-block;
+    width: 0.9375rem;
+    height: 0.9375rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-surface);
+    margin-left: -0.3125rem;
+
+    &:first-child {
+      margin-left: 0;
+      background-color: var(--color-primary);
+    }
+
+    &:nth-child(2) {
+      background-color: var(--color-accent);
+    }
+
+    &:nth-child(3) {
+      background-color: var(--color-success);
+    }
+  }
+}
+
+.lawyer-card__connect {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 999px;
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-subtle);
+  }
+
+  &--disabled {
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+    cursor: default;
+  }
 }

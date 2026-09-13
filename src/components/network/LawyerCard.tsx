@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Avatar } from "../ui/Avatar";
-import { Button } from "../ui/Button";
 import type { ConnectionStatus, LawyerProfile } from "../../models/Lawyer";
 import { pluralizeSr } from "../../utils/pluralizeSr";
 import "./LawyerCard.scss";
@@ -25,29 +24,40 @@ export function LawyerCard({ lawyer, status, onConnect }: LawyerCardProps) {
 
   return (
     <article className="lawyer-card">
-      <Link to={`/network/${lawyer.id}`} className="lawyer-card__link">
+      <div className="lawyer-card__cover" />
+      <Link to={`/network/${lawyer.id}`} className="lawyer-card__avatar-link">
         <Avatar initials={lawyer.avatarInitials} size="lg" />
-        <p className="lawyer-card__name">
-          {lawyer.firstName} {lawyer.lastName}
-        </p>
-        <p className="lawyer-card__headline">{lawyer.headline}</p>
       </Link>
 
-      {lawyer.mutualConnections > 0 && (
-        <p className="lawyer-card__mutual">
-          {lawyer.mutualConnections}{" "}
-          {pluralizeSr(lawyer.mutualConnections, "zajednička veza", "zajedničke veze", "zajedničkih veza")}
-        </p>
-      )}
+      <div className="lawyer-card__body">
+        <Link to={`/network/${lawyer.id}`} className="lawyer-card__name-link">
+          {lawyer.firstName} {lawyer.lastName}
+        </Link>
+        <p className="lawyer-card__headline">{lawyer.headline}</p>
 
-      <Button
-        variant={isActionable ? "primary" : "outline"}
-        size="small"
+        {lawyer.mutualConnections > 0 && (
+          <p className="lawyer-card__mutual">
+            <span className="lawyer-card__mutual-dots" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+            {lawyer.mutualConnections}{" "}
+            {pluralizeSr(lawyer.mutualConnections, "zajednička veza", "zajedničke veze", "zajedničkih veza")}
+          </p>
+        )}
+      </div>
+
+      <button
+        type="button"
+        className={
+          isActionable ? "lawyer-card__connect" : "lawyer-card__connect lawyer-card__connect--disabled"
+        }
         disabled={!isActionable}
         onClick={() => onConnect(lawyer.id)}
       >
         {STATUS_LABEL[status]}
-      </Button>
+      </button>
     </article>
   );
 }

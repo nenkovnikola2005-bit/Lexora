@@ -63,6 +63,14 @@ export class MessageService {
     return conversation;
   }
 
+  markRead(conversationId: string): void {
+    const conversations = this.conversationsStorage.get() ?? [];
+    const index = conversations.findIndex((conversation) => conversation.id === conversationId);
+    if (index === -1 || !conversations[index].unread) return;
+    conversations[index] = { ...conversations[index], unread: false };
+    this.conversationsStorage.set(conversations);
+  }
+
   sendMessage(conversationId: string, senderId: string, text: string): Message {
     const messages = this.messagesStorage.get() ?? [];
     const message: Message = {

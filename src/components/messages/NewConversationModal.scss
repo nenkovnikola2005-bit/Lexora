@@ -1,0 +1,43 @@
+.new-conversation-modal__empty {
+  font-size: var(--font-body-size);
+  color: var(--color-text-muted);
+}
+
+.new-conversation-modal__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.new-conversation-modal__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--color-border);
+  text-align: left;
+
+  &:hover .new-conversation-modal__name {
+    color: var(--color-primary);
+  }
+}
+
+li:first-child .new-conversation-modal__row {
+  border-top: none;
+}
+
+.new-conversation-modal__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.new-conversation-modal__name {
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.new-conversation-modal__headline {
+  font-size: var(--font-meta-size);
+  color: var(--color-text-muted);
+}

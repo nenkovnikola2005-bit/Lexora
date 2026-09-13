@@ -1,31 +1,119 @@
 @use "../styles/mixins" as *;
 
 .messages-page {
-  display: grid;
-  grid-template-columns: 20rem 1fr;
-  gap: 1.5rem;
-  height: 70vh;
-  min-height: 28rem;
+  display: flex;
+  height: calc(100svh - 8rem);
+  min-height: 32rem;
+  max-height: 56.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgb(15 23 41 / 5%);
+  overflow: hidden;
 
   @include respond(tablet) {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     height: auto;
+    max-height: none;
   }
 }
+
+// --- Leva kolona: lista razgovora ---
 
 .messages-page__list {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 0.75rem;
-  overflow-y: auto;
+  width: 22.5rem;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-border);
 
   @include respond(tablet) {
-    max-height: 20rem;
+    width: 100%;
+    max-height: 24rem;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
   }
+}
+
+.messages-page__list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem 0;
+}
+
+.messages-page__list-title {
+  font-size: var(--font-section-size);
+  font-weight: var(--font-section-weight);
+  color: var(--color-text-primary);
+}
+
+.messages-page__new-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 18%, var(--color-primary-subtle));
+  }
+}
+
+.messages-page__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5625rem;
+  margin: 0.75rem 1.125rem 0;
+  padding: 0.5625rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-base);
+    font-size: var(--font-body-size);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+  }
+}
+
+.messages-page__filters {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.625rem 1.125rem 0.875rem;
+}
+
+.messages-page__filter {
+  padding: 0.3125rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: var(--font-tab-size);
+  font-weight: var(--font-tab-weight);
+
+  &--active {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+  }
+}
+
+.messages-page__list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0.625rem 0.625rem;
 }
 
 .messages-page__empty-list {
@@ -35,14 +123,13 @@
   text-align: center;
 }
 
+// --- Desna kolona: nit poruka ---
+
 .messages-page__thread {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  overflow: hidden;
-  min-height: 20rem;
 }
 
 .messages-page__empty-thread {
@@ -57,8 +144,16 @@
 }
 
 .messages-page__thread-header {
-  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.375rem;
   border-bottom: 1px solid var(--color-border);
+}
+
+.messages-page__thread-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .messages-page__thread-name {
@@ -67,32 +162,81 @@
   color: var(--color-text-primary);
 }
 
+.messages-page__thread-level {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+}
+
 .messages-page__thread-headline {
   font-size: var(--font-meta-size);
   color: var(--color-text-muted);
 }
 
+.messages-page__profile-btn {
+  flex-shrink: 0;
+  padding: 0.4375rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
 .messages-page__messages {
   flex: 1;
   overflow-y: auto;
-  padding: 1.25rem;
+  padding: 1.25rem 1.375rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
+.messages-page__day-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0 0.5rem;
+
+  span {
+    flex: 1;
+    height: 1px;
+    background-color: var(--color-border);
+  }
+
+  p {
+    flex-shrink: 0;
+    font-size: var(--font-label-size);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-muted);
+  }
+}
+
+.messages-page__row {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-end;
+
+  &--own {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+  }
+}
+
 .messages-page__bubble {
-  align-self: flex-start;
   max-width: 70%;
   background-color: var(--color-bg);
-  border-radius: 12px;
+  border-radius: 14px;
   border-bottom-left-radius: 4px;
   padding: 0.625rem 0.875rem;
 
   &--own {
-    align-self: flex-end;
     background-color: var(--color-primary);
-    border-bottom-left-radius: 12px;
+    border-bottom-left-radius: 14px;
     border-bottom-right-radius: 4px;
 
     .messages-page__bubble-text {
@@ -100,7 +244,8 @@
     }
 
     .messages-page__bubble-time {
-      color: var(--color-indigo-50);
+      color: var(--color-indigo-200);
+      text-align: right;
     }
   }
 }
@@ -118,24 +263,72 @@
   margin-top: 0.25rem;
 }
 
+// --- Sastavljanje poruke ---
+
 .messages-page__composer {
   display: flex;
-  gap: 0.625rem;
-  padding: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1.375rem 1rem;
   border-top: 1px solid var(--color-border);
+}
+
+.messages-page__composer-pill {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem 0.625rem 1.125rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  background-color: var(--color-bg);
 }
 
 .messages-page__composer-input {
   flex: 1;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background-color: var(--color-bg);
+  min-width: 0;
+  max-height: 6rem;
+  resize: none;
+  background: none;
+  border: none;
   color: var(--color-text-primary);
-  padding: 0.625rem 1rem;
   font-family: var(--font-family-base);
   font-size: var(--font-body-size);
+  line-height: 1.25rem;
+  padding: 0.25rem 0;
 
   &::placeholder {
     color: var(--color-text-muted);
   }
+}
+
+.messages-page__composer-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  padding-bottom: 0.375rem;
+}
+
+.messages-page__send-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.messages-page__composer-hint {
+  font-size: var(--font-label-size);
+  color: var(--color-text-muted);
+  padding-left: 0.5rem;
 }

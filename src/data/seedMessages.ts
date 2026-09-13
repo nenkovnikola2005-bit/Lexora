@@ -10,6 +10,7 @@ export const seedConversations: Conversation[] = [
     participantInitials: "JP",
     lastMessagePreview: "Naravno, pošaljite mi dokumentaciju pa da pogledam.",
     updatedAt: "2026-09-08T15:42:00.000Z",
+    unread: true,
   },
   {
     id: "conv-02",
@@ -28,6 +29,7 @@ export const seedConversations: Conversation[] = [
     participantInitials: "TN",
     lastMessagePreview: "Odlično, javi mi kad budeš imala vremena za poziv.",
     updatedAt: "2026-09-05T09:05:00.000Z",
+    unread: true,
   },
 ];
 

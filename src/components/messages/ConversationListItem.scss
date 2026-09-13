@@ -33,6 +33,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  &--unread {
+    font-weight: var(--font-weight-bold);
+  }
 }
 
 .conversation-item__time {
@@ -41,10 +45,35 @@
   flex-shrink: 0;
 }
 
+.conversation-item__headline {
+  font-size: var(--font-label-size);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-item__bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.125rem;
+}
+
 .conversation-item__preview {
+  flex: 1;
+  min-width: 0;
   font-size: var(--font-meta-size);
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.conversation-item__unread-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
 }

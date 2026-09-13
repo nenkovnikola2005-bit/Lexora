@@ -14,4 +14,5 @@ export interface Conversation {
   participantInitials: string;
   lastMessagePreview: string;
   updatedAt: string;
+  unread?: boolean;
 }

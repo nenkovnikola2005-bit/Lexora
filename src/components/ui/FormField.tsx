@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
+import { EyeIcon } from "./icons/EyeIcon";
 import "./FormField.scss";
 
 export type FormFieldVariant = "text" | "email" | "password" | "select" | "textarea";
@@ -43,6 +45,7 @@ export function FormField({
 }: FormFieldProps) {
   const hasError = Boolean(errorText);
   const messageId = errorText || helperText ? `${id}-message` : undefined;
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -92,6 +95,34 @@ export function FormField({
           aria-invalid={hasError || undefined}
           aria-describedby={messageId}
         />
+      );
+    }
+
+    if (variant === "password") {
+      return (
+        <div className="form-field__control-wrap">
+          <input
+            id={id}
+            name={name}
+            type={showPassword ? "text" : "password"}
+            className={`${controlClassName} form-field__control--with-icon`}
+            value={value}
+            onChange={handleChange}
+            placeholder={placeholder}
+            required={required}
+            disabled={disabled}
+            aria-invalid={hasError || undefined}
+            aria-describedby={messageId}
+          />
+          <button
+            type="button"
+            className="form-field__toggle-visibility"
+            onClick={() => setShowPassword((current) => !current)}
+            aria-label={showPassword ? "Sakrij lozinku" : "Prikaži lozinku"}
+          >
+            <EyeIcon />
+          </button>
+        </div>
       );
     }
 

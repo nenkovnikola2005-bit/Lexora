@@ -373,13 +373,13 @@ export function ProfilePage() {
               </div>
             ) : user.openToCollaboration?.enabled ? (
               <div className="profile-page__collab-banner">
-                <div>
+                <div className="profile-page__collab-text">
                   <p className="profile-page__collab-title">Otvorena/otvoren za saradnju</p>
                   <p className="profile-page__collab-note">{user.openToCollaboration.note}</p>
                 </div>
                 <button
                   type="button"
-                  className="profile-page__section-action"
+                  className="profile-page__section-action profile-page__collab-edit-btn"
                   onClick={handleStartEditingCollaboration}
                 >
                   Uredi

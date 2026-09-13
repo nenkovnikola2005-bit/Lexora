@@ -61,6 +61,9 @@ export class AuthService implements IAuthService {
       bio: "",
       avatarInitials: getInitials(input.firstName, input.lastName),
       licenseVerified: false,
+      experience: [],
+      education: [],
+      skills: [],
       createdAt: new Date().toISOString(),
       passwordHash,
     };
@@ -150,6 +153,26 @@ export class AuthService implements IAuthService {
         "Sertifikovani medijator posvećena mirnom rešavanju sporova.",
       avatarInitials: "AK",
       licenseVerified: true,
+      experience: [
+        {
+          role: "Advokatica, osnivačica",
+          organization: "Advokatska kancelarija Kovačević",
+          period: "2018–danas",
+        },
+        {
+          role: "Advokatski pripravnik",
+          organization: "AK Marković i partneri",
+          period: "2014–2018",
+        },
+      ],
+      education: [
+        {
+          school: "Pravni fakultet Univerziteta u Beogradu",
+          degree: "Diplomirani pravnik",
+          period: "2009–2013",
+        },
+      ],
+      skills: ["Porodično pravo", "Nasledno pravo", "Medijacija"],
       createdAt: new Date().toISOString(),
       passwordHash,
     };

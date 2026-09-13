@@ -170,3 +170,140 @@
   font-size: var(--font-meta-size);
   color: var(--color-text-muted);
 }
+
+// --- Iskustvo / Obrazovanje / Veštine: zaglavlje sekcije sa dugmetom "Uredi" ---
+
+.profile-page__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.profile-page__section-header h2 {
+  margin-bottom: 0;
+}
+
+.profile-page__section-action {
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  align-self: flex-start;
+}
+
+.profile-page__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  li {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+  }
+}
+
+.profile-page__timeline-role {
+  font-size: var(--font-name-size);
+  font-weight: var(--font-name-weight);
+  color: var(--color-text-primary);
+}
+
+.profile-page__timeline-org {
+  font-size: var(--font-body-size);
+  color: var(--color-text-secondary);
+}
+
+.profile-page__timeline-period {
+  font-size: var(--font-meta-size);
+  color: var(--color-text-muted);
+}
+
+.profile-page__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--font-meta-size);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+  }
+}
+
+.profile-page__skill-chip button {
+  font-size: var(--font-body-size);
+  line-height: 1;
+  color: var(--color-text-muted);
+
+  &:hover {
+    color: var(--color-danger);
+  }
+}
+
+// --- Uređivanje lista (iskustvo, obrazovanje, veštine) ---
+
+.profile-page__list-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.profile-page__list-edit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+
+  @include respond(mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-page__list-input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-family-base);
+  font-size: var(--font-body-size);
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &--period {
+    max-width: 12rem;
+
+    @include respond(mobile) {
+      max-width: none;
+    }
+  }
+}
+
+.profile-page__list-remove {
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger);
+  white-space: nowrap;
+}
+
+.profile-page__skill-input-row {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 24rem;
+}

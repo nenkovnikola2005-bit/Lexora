@@ -1,3 +1,5 @@
+import type { Education, Experience } from "./Lawyer";
+
 export type UserRole = "advokat" | "klijent";
 
 export interface User {
@@ -13,6 +15,9 @@ export interface User {
   bio: string;
   avatarInitials: string;
   licenseVerified: boolean;
+  experience: Experience[];
+  education: Education[];
+  skills: string[];
   createdAt: string;
 }
 

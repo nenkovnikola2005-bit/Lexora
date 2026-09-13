@@ -1,90 +1,151 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Avatar } from "../ui/Avatar";
+import { ChatIcon } from "../ui/icons/ChatIcon";
+import { HomeIcon } from "../ui/icons/HomeIcon";
+import { NetworkIcon } from "../ui/icons/NetworkIcon";
+import { SearchIcon } from "../ui/icons/SearchIcon";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { MessageService } from "../../services/MessageService";
+import { NetworkService } from "../../services/NetworkService";
 import "./Navbar.scss";
 
-const NAV_LINKS = [
-  { to: "/feed", label: "Početna" },
-  { to: "/network", label: "Mreža" },
-  { to: "/messages", label: "Poruke" },
-  { to: "/profile", label: "Profil" },
-  { to: "/settings", label: "Podešavanja" },
-];
+interface NavTab {
+  key: string;
+  to: string;
+  label: string;
+  icon: ReactNode;
+  badge?: number;
+}
 
-// Glavna navigacija za prijavljene korisnike.
+// Glavna navigacija za prijavljene korisnike, prema Figma "Navbar" komponenti.
 export function Navbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const networkService = useMemo(() => new NetworkService(), []);
+  const messageService = useMemo(() => new MessageService(), []);
 
-  // Zatvara padajući meni pri svakoj promeni rute.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [pendingCount, setPendingCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Osvežava brojače na pozivnice i nepročitane poruke pri svakoj promeni rute.
   useEffect(() => {
+    setPendingCount(networkService.getPendingIncoming().length);
+    setUnreadCount(messageService.unreadCount());
     setMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, networkService, messageService]);
+
+  const tabs: NavTab[] = [
+    { key: "pocetna", to: "/feed", label: "Početna", icon: <HomeIcon /> },
+    {
+      key: "mreza",
+      to: "/network",
+      label: "Mreža",
+      icon: <NetworkIcon />,
+      badge: pendingCount,
+    },
+    {
+      key: "poruke",
+      to: "/messages",
+      label: "Poruke",
+      icon: <ChatIcon />,
+      badge: unreadCount,
+    },
+  ];
+
+  const handleSearchSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const query = searchValue.trim();
+    if (!query) return;
+    navigate(`/network?q=${encodeURIComponent(query)}`);
+  };
 
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
   };
 
+  if (!user) return null;
+
   return (
     <header className="navbar">
-      <NavLink to="/feed" className="navbar__brand">
-        Lexora
+      <NavLink to="/feed" className="navbar__logo" aria-label="Lexora — Početna">
+        L
       </NavLink>
 
-      <nav className="navbar__links" aria-label="Glavna navigacija">
-        {NAV_LINKS.map((link) => (
+      <form className="navbar__search" onSubmit={handleSearchSubmit} role="search">
+        <SearchIcon />
+        <input
+          type="text"
+          value={searchValue}
+          onChange={(event) => setSearchValue(event.target.value)}
+          placeholder="Pretraži pravnike, oblasti, objave…"
+          aria-label="Pretraga"
+        />
+      </form>
+
+      <div className="navbar__spacer" />
+
+      <nav className="navbar__tabs" aria-label="Glavna navigacija">
+        {tabs.map((tab) => (
           <NavLink
-            key={link.to}
-            to={link.to}
+            key={tab.key}
+            to={tab.to}
             className={({ isActive }) =>
-              isActive ? "navbar__link navbar__link--active" : "navbar__link"
+              isActive ? "navbar__tab navbar__tab--active" : "navbar__tab"
             }
           >
-            {link.label}
+            <span className="navbar__tab-icon-wrap">
+              {tab.icon}
+              {Boolean(tab.badge) && <span className="navbar__badge">{tab.badge}</span>}
+            </span>
+            {tab.label}
           </NavLink>
         ))}
+
+        <div className="navbar__user">
+          <button
+            type="button"
+            className="navbar__tab navbar__tab--user"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+          >
+            <Avatar initials={user.avatarInitials} size="sm" />
+            Ja ▾
+          </button>
+
+          {menuOpen && (
+            <div className="navbar__menu">
+              <p className="navbar__menu-name">
+                {user.firstName} {user.lastName}
+              </p>
+              <NavLink to="/profile" className="navbar__menu-item">
+                Profil
+              </NavLink>
+              <NavLink to="/settings" className="navbar__menu-item">
+                Podešavanja
+              </NavLink>
+              <button type="button" className="navbar__menu-item" onClick={toggleTheme}>
+                {theme === "dark" ? "Uključi svetlu temu" : "Uključi tamnu temu"}
+              </button>
+              <button
+                type="button"
+                className="navbar__menu-item navbar__menu-item--danger"
+                onClick={handleLogout}
+              >
+                Odjava
+              </button>
+            </div>
+          )}
+        </div>
       </nav>
-
-      <div className="navbar__actions">
-        <button
-          type="button"
-          className="navbar__theme-toggle"
-          onClick={toggleTheme}
-          aria-label={theme === "dark" ? "Uključi svetlu temu" : "Uključi tamnu temu"}
-        >
-          <span aria-hidden="true">{theme === "dark" ? "☀️" : "🌙"}</span>
-        </button>
-
-        {user && (
-          <div className="navbar__user">
-            <button
-              type="button"
-              className="navbar__avatar-button"
-              onClick={() => setMenuOpen((open) => !open)}
-              aria-expanded={menuOpen}
-              aria-haspopup="true"
-              aria-label="Meni naloga"
-            >
-              <Avatar initials={user.avatarInitials} size="sm" />
-            </button>
-
-            {menuOpen && (
-              <div className="navbar__menu">
-                <p className="navbar__menu-name">{user.firstName} {user.lastName}</p>
-                <button type="button" className="navbar__menu-item" onClick={handleLogout}>
-                  Odjava
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
     </header>
   );
 }

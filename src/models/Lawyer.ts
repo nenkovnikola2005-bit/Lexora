@@ -56,6 +56,7 @@ export interface NetworkFilters {
   practiceAreas: string[];
   city: string;
   onlyMutual: boolean;
+  query: string;
 }
 
 export function matchesFilters(
@@ -76,6 +77,13 @@ export function matchesFilters(
   }
   if (filters.onlyMutual && lawyer.mutualConnections === 0) {
     return false;
+  }
+  const query = filters.query.trim().toLowerCase();
+  if (query) {
+    const haystack = `${lawyer.firstName} ${lawyer.lastName} ${lawyer.practiceArea} ${lawyer.city}`.toLowerCase();
+    if (!haystack.includes(query)) {
+      return false;
+    }
   }
   return true;
 }

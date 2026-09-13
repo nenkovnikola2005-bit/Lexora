@@ -47,6 +47,17 @@
   color: var(--color-text-primary);
 }
 
+.network-page__query-notice {
+  font-size: var(--font-meta-size);
+  color: var(--color-text-muted);
+  margin-top: -0.5rem;
+}
+
+.network-page__query-clear {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
 // --- Pozivnice ---
 
 .network-page__invitations {

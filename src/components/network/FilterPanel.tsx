@@ -26,6 +26,7 @@ const EMPTY_FILTERS: NetworkFilters = {
   practiceAreas: [],
   city: "",
   onlyMutual: false,
+  query: "",
 };
 
 // Panel filtera za pretragu mreže — nivo povezanosti, oblast prava, grad i zajedničke veze.

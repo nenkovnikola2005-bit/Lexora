@@ -63,6 +63,11 @@ export class MessageService {
     return conversation;
   }
 
+  unreadCount(): number {
+    const conversations = this.conversationsStorage.get() ?? [];
+    return conversations.filter((conversation) => conversation.unread).length;
+  }
+
   markRead(conversationId: string): void {
     const conversations = this.conversationsStorage.get() ?? [];
     const index = conversations.findIndex((conversation) => conversation.id === conversationId);

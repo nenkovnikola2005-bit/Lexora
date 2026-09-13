@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
 import { Pagination } from "../components/ui/Pagination";
@@ -15,12 +16,14 @@ const EMPTY_FILTERS: NetworkFilters = {
   practiceAreas: [],
   city: "",
   onlyMutual: false,
+  query: "",
 };
 
 const PAGE_SIZE = 6;
 
 export function NetworkPage() {
   const networkService = useMemo(() => new NetworkService(), []);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [filters, setFilters] = useState<NetworkFilters>(EMPTY_FILTERS);
   const [allLawyers, setAllLawyers] = useState<LawyerProfile[]>([]);
@@ -35,11 +38,14 @@ export function NetworkPage() {
     setPendingIncoming(networkService.getPendingIncoming());
   };
 
-  // Učitava direktorijum i pozivnice jednom, pri prvom renderovanju stranice.
+  // Učitava direktorijum i pozivnice jednom, pri prvom renderovanju stranice —
+  // uzima u obzir i globalnu pretragu iz navbar-a (?q=...).
   useEffect(() => {
     networkService.seedIfEmpty();
     setAllLawyers(networkService.getDirectory());
-    refreshDirectory(EMPTY_FILTERS);
+    const initialFilters = { ...EMPTY_FILTERS, query: searchParams.get("q") ?? "" };
+    setFilters(initialFilters);
+    refreshDirectory(initialFilters);
     refreshPending();
   }, [networkService]);
 
@@ -52,6 +58,11 @@ export function NetworkPage() {
     setFilters(nextFilters);
     refreshDirectory(nextFilters);
     goToPage(1);
+    setSearchParams(nextFilters.query ? { q: nextFilters.query } : {});
+  };
+
+  const handleClearQuery = () => {
+    handleFiltersChange({ ...filters, query: "" });
   };
 
   const handleConnect = (lawyerId: string) => {
@@ -74,7 +85,8 @@ export function NetworkPage() {
     filters.levels.length > 0 ||
     filters.practiceAreas.length > 0 ||
     Boolean(filters.city) ||
-    filters.onlyMutual;
+    filters.onlyMutual ||
+    Boolean(filters.query);
 
   const connectedCount = networkService.connectedCount();
 
@@ -147,6 +159,15 @@ export function NetworkPage() {
               ? `Rezultati${directory.length > 0 ? ` (${directory.length})` : ""}`
               : "Pravnici koje možda poznajete"}
           </h2>
+
+          {filters.query && (
+            <p className="network-page__query-notice">
+              Pretraga za „{filters.query}”{" "}
+              <button type="button" className="network-page__query-clear" onClick={handleClearQuery}>
+                Ukloni
+              </button>
+            </p>
+          )}
 
           {pageItems.length === 0 ? (
             <p className="network-page__empty">

@@ -1,3 +1,20 @@
+export interface PostDocument {
+  name: string;
+  sizeLabel: string;
+  dataUrl: string;
+}
+
+export interface PollOption {
+  id: string;
+  label: string;
+  votes: string[];
+}
+
+export interface Poll {
+  question: string;
+  options: PollOption[];
+}
+
 export interface Post {
   id: string;
   authorId: string;
@@ -9,6 +26,8 @@ export interface Post {
   likedBy: string[];
   savedBy: string[];
   commentsCount: number;
+  document?: PostDocument;
+  poll?: Poll;
 }
 
 export type PostSort = "novo" | "popularno";

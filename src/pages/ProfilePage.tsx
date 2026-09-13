@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { PostCard } from "../components/feed/PostCard";
 import { PostModal } from "../components/feed/PostModal";
+import { SendPostModal } from "../components/feed/SendPostModal";
 import { ProfileHeader } from "../components/profile/ProfileHeader";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../context/AuthContext";
 import { CommentService } from "../services/CommentService";
+import { MessageService } from "../services/MessageService";
 import { NetworkService } from "../services/NetworkService";
 import { PostService } from "../services/PostService";
 import type { Post } from "../models/Post";
@@ -52,9 +54,11 @@ export function ProfilePage() {
   const postService = useMemo(() => new PostService(), []);
   const networkService = useMemo(() => new NetworkService(), []);
   const commentService = useMemo(() => new CommentService(), []);
+  const messageService = useMemo(() => new MessageService(), []);
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [activePostId, setActivePostId] = useState<string | null>(null);
+  const [sendPostId, setSendPostId] = useState<string | null>(null);
   const [isEditingAbout, setIsEditingAbout] = useState(false);
   const [aboutDraft, setAboutDraft] = useState("");
 
@@ -73,8 +77,9 @@ export function ProfilePage() {
     postService.seedIfEmpty();
     networkService.seedIfEmpty();
     commentService.seedIfEmpty();
+    messageService.seedIfEmpty();
     setPosts(postService.byAuthor(user.id));
-  }, [user, postService, networkService, commentService]);
+  }, [user, postService, networkService, commentService, messageService]);
 
   if (!user) {
     return null;
@@ -97,7 +102,17 @@ export function ProfilePage() {
     refreshPosts();
   };
 
+  const handleVotePoll = (postId: string, optionId: string) => {
+    postService.votePoll(postId, optionId, user.id);
+    refreshPosts();
+  };
+
+  const handleSendPost = (postId: string) => {
+    setSendPostId(postId);
+  };
+
   const activePost = activePostId ? posts.find((post) => post.id === activePostId) ?? null : null;
+  const sendPost = sendPostId ? posts.find((post) => post.id === sendPostId) ?? null : null;
 
   const handleStartEditing = () => {
     setAboutDraft(user.bio);
@@ -297,6 +312,8 @@ export function ProfilePage() {
                   onToggleSave={handleToggleSave}
                   onConnect={() => {}}
                   onOpenPost={setActivePostId}
+                  onVotePoll={handleVotePoll}
+                  onSendPost={handleSendPost}
                 />
               ))}
             </div>
@@ -591,6 +608,17 @@ export function ProfilePage() {
           onToggleLike={handleToggleLike}
           onToggleSave={handleToggleSave}
           onCommentAdded={handleCommentAdded}
+          onVotePoll={handleVotePoll}
+        />
+      )}
+
+      {sendPost && (
+        <SendPostModal
+          post={sendPost}
+          currentUser={user}
+          networkService={networkService}
+          messageService={messageService}
+          onClose={() => setSendPostId(null)}
         />
       )}
     </div>

@@ -137,6 +137,11 @@
   }
 }
 
+.feed-page__groups-list {
+  display: flex;
+  flex-direction: column;
+}
+
 // --- Centralna kolona: kompozitor, alatna traka, lista objava ---
 
 .feed-page__toolbar {
@@ -199,7 +204,7 @@
   border-radius: 12px;
 }
 
-// --- Desna kolona: pravne vesti, predlozi, Lexora Pro ---
+// --- Desna kolona: pravne vesti, predlozi ---
 
 .feed-page__news-list {
   display: flex;
@@ -238,21 +243,4 @@
 .feed-page__suggestions-list {
   display: flex;
   flex-direction: column;
-}
-
-.feed-page__pro-card {
-  background-color: var(--color-accent-subtle);
-  border-color: var(--color-accent);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-start;
-
-  .feed-page__card-title {
-    color: var(--color-primary-strong);
-  }
-
-  .feed-page__card-text {
-    color: var(--color-text-secondary);
-  }
 }

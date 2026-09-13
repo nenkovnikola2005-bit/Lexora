@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Avatar } from "../components/ui/Avatar";
-import { Button } from "../components/ui/Button";
 import { BookmarkIcon } from "../components/ui/icons/BookmarkIcon";
+import { GroupItem } from "../components/feed/GroupItem";
 import { PostCard } from "../components/feed/PostCard";
 import { PostComposer } from "../components/feed/PostComposer";
 import { PostModal } from "../components/feed/PostModal";
+import { SendPostModal } from "../components/feed/SendPostModal";
 import { SuggestionCard } from "../components/feed/SuggestionCard";
 import { useAuth } from "../context/AuthContext";
 import { CommentService } from "../services/CommentService";
+import type { GroupWithMembership } from "../services/GroupService";
+import { GroupService } from "../services/GroupService";
+import { MessageService } from "../services/MessageService";
 import { NetworkService } from "../services/NetworkService";
 import { PostService } from "../services/PostService";
 import type { LawyerProfile } from "../models/Lawyer";
@@ -40,12 +44,16 @@ export function FeedPage() {
   const postService = useMemo(() => new PostService(), []);
   const networkService = useMemo(() => new NetworkService(), []);
   const commentService = useMemo(() => new CommentService(), []);
+  const messageService = useMemo(() => new MessageService(), []);
+  const groupService = useMemo(() => new GroupService(), []);
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [sort, setSort] = useState<PostSort>("novo");
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [suggestions, setSuggestions] = useState<LawyerProfile[]>([]);
+  const [groups, setGroups] = useState<GroupWithMembership[]>([]);
   const [activePostId, setActivePostId] = useState<string | null>(null);
+  const [sendPostId, setSendPostId] = useState<string | null>(null);
 
   const refreshSuggestions = () => {
     const notConnected = networkService
@@ -54,13 +62,18 @@ export function FeedPage() {
     setSuggestions(notConnected.slice(0, SUGGESTIONS_LIMIT));
   };
 
+  const refreshGroups = () => setGroups(groupService.list());
+
   useEffect(() => {
     postService.seedIfEmpty();
     networkService.seedIfEmpty();
     commentService.seedIfEmpty();
+    messageService.seedIfEmpty();
+    groupService.seedIfEmpty();
     setPosts(postService.list(sort));
     refreshSuggestions();
-  }, [postService, networkService, commentService, sort]);
+    refreshGroups();
+  }, [postService, networkService, commentService, messageService, groupService, sort]);
 
   if (!user) {
     return null;
@@ -89,6 +102,16 @@ export function FeedPage() {
     refreshPosts();
   };
 
+  const handleVotePoll = (postId: string, optionId: string) => {
+    postService.votePoll(postId, optionId, user.id);
+    refreshPosts();
+  };
+
+  const handleToggleJoinGroup = (groupId: string) => {
+    groupService.toggleJoin(groupId);
+    refreshGroups();
+  };
+
   const visiblePosts = showSavedOnly
     ? posts.filter((post) => post.savedBy.includes(user.id))
     : posts;
@@ -96,6 +119,7 @@ export function FeedPage() {
   const myPostsCount = postService.byAuthor(user.id).length;
   const connectionsCount = networkService.connectedCount();
   const activePost = activePostId ? posts.find((post) => post.id === activePostId) ?? null : null;
+  const sendPost = sendPostId ? posts.find((post) => post.id === sendPostId) ?? null : null;
 
   return (
     <div className="feed-page">
@@ -133,9 +157,13 @@ export function FeedPage() {
           </button>
         </div>
 
-        <div className="feed-page__card feed-page__placeholder-card">
+        <div className="feed-page__card feed-page__groups-card">
           <h2 className="feed-page__card-title">Moje grupe</h2>
-          <p className="feed-page__card-text">Uskoro dostupno.</p>
+          <div className="feed-page__groups-list">
+            {groups.map((group) => (
+              <GroupItem key={group.id} group={group} onToggleJoin={handleToggleJoinGroup} />
+            ))}
+          </div>
         </div>
       </aside>
 
@@ -204,6 +232,8 @@ export function FeedPage() {
                 onToggleSave={handleToggleSave}
                 onConnect={handleConnect}
                 onOpenPost={setActivePostId}
+                onVotePoll={handleVotePoll}
+                onSendPost={setSendPostId}
               />
             ))}
           </div>
@@ -236,17 +266,6 @@ export function FeedPage() {
             </div>
           </div>
         )}
-
-        <div className="feed-page__card feed-page__pro-card">
-          <h2 className="feed-page__card-title">Lexora Pro</h2>
-          <p className="feed-page__card-text">
-            Izdvojte se u pretrazi, vidite ko je posetio vaš profil i otključajte napredne
-            filtere mreže.
-          </p>
-          <Button variant="secondary" size="small">
-            Nadogradi na Pro
-          </Button>
-        </div>
       </aside>
 
       {activePost && (
@@ -258,6 +277,17 @@ export function FeedPage() {
           onToggleLike={handleToggleLike}
           onToggleSave={handleToggleSave}
           onCommentAdded={handleCommentAdded}
+          onVotePoll={handleVotePoll}
+        />
+      )}
+
+      {sendPost && (
+        <SendPostModal
+          post={sendPost}
+          currentUser={user}
+          networkService={networkService}
+          messageService={messageService}
+          onClose={() => setSendPostId(null)}
         />
       )}
     </div>

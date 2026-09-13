@@ -6,6 +6,8 @@ import { Modal } from "../ui/Modal";
 import { BookmarkIcon } from "../ui/icons/BookmarkIcon";
 import { LikeIcon } from "../ui/icons/LikeIcon";
 import { CommentItem } from "./CommentItem";
+import { DocumentAttachment } from "./DocumentAttachment";
+import { PollBlock } from "./PollBlock";
 import type { Comment } from "../../models/Comment";
 import type { Post } from "../../models/Post";
 import type { User } from "../../models/User";
@@ -22,6 +24,7 @@ export interface PostModalProps {
   onToggleLike: (postId: string) => void;
   onToggleSave: (postId: string) => void;
   onCommentAdded: (postId: string) => void;
+  onVotePoll: (postId: string, optionId: string) => void;
 }
 
 // Popup prozor jedne objave: pun tekst, reakcije i komentari.
@@ -33,6 +36,7 @@ export function PostModal({
   onToggleLike,
   onToggleSave,
   onCommentAdded,
+  onVotePoll,
 }: PostModalProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
@@ -67,7 +71,17 @@ export function PostModal({
           </div>
         </header>
 
-        <p className="post-modal__content">{post.content}</p>
+        {post.content && <p className="post-modal__content">{post.content}</p>}
+
+        {post.document && <DocumentAttachment document={post.document} />}
+
+        {post.poll && (
+          <PollBlock
+            poll={post.poll}
+            currentUserId={currentUser.id}
+            onVote={(optionId) => onVotePoll(post.id, optionId)}
+          />
+        )}
 
         <div className="post-modal__actions">
           <button

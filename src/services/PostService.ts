@@ -1,10 +1,15 @@
 import { seedPosts } from "../data/seedPosts";
-import type { Post, PostSort } from "../models/Post";
+import type { Poll, Post, PostDocument, PostSort } from "../models/Post";
 import { sortPosts } from "../models/Post";
 import type { User } from "../models/User";
 import { StorageService } from "./StorageService";
 
 const POSTS_KEY = "lexora_posts";
+
+export interface PostExtras {
+  document?: PostDocument;
+  poll?: Poll;
+}
 
 export class PostService {
   private storage: StorageService<Post[]>;
@@ -30,7 +35,7 @@ export class PostService {
     return posts.filter((post) => post.authorId === authorId);
   }
 
-  create(author: User, content: string): Post {
+  create(author: User, content: string, extras?: PostExtras): Post {
     const posts = this.storage.get() ?? [];
     const post: Post = {
       id: crypto.randomUUID(),
@@ -43,6 +48,8 @@ export class PostService {
       likedBy: [],
       savedBy: [],
       commentsCount: 0,
+      document: extras?.document,
+      poll: extras?.poll,
     };
     posts.unshift(post);
     this.storage.set(posts);
@@ -86,5 +93,28 @@ export class PostService {
   getById(postId: string): Post | null {
     const posts = this.storage.get() ?? [];
     return posts.find((post) => post.id === postId) ?? null;
+  }
+
+  // Glasanje za opciju ankete. Klik na opciju za koju je korisnik već glasao
+  // poništava glas; klik na drugu opciju prebacuje glas na nju.
+  votePoll(postId: string, optionId: string, userId: string): void {
+    const posts = this.storage.get() ?? [];
+    const index = posts.findIndex((post) => post.id === postId);
+    if (index === -1 || !posts[index].poll) return;
+
+    const currentPoll = posts[index].poll!;
+    const previousChoice = currentPoll.options.find((option) => option.votes.includes(userId));
+    const options = currentPoll.options.map((option) => ({
+      ...option,
+      votes: option.votes.filter((id) => id !== userId),
+    }));
+
+    if (!previousChoice || previousChoice.id !== optionId) {
+      const target = options.find((option) => option.id === optionId);
+      if (target) target.votes = [...target.votes, userId];
+    }
+
+    posts[index] = { ...posts[index], poll: { ...currentPoll, options } };
+    this.storage.set(posts);
   }
 }

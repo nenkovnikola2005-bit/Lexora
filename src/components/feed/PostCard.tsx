@@ -7,6 +7,8 @@ import { GlobeIcon } from "../ui/icons/GlobeIcon";
 import { LikeIcon } from "../ui/icons/LikeIcon";
 import { SendIcon } from "../ui/icons/SendIcon";
 import { ShareIcon } from "../ui/icons/ShareIcon";
+import { DocumentAttachment } from "./DocumentAttachment";
+import { PollBlock } from "./PollBlock";
 import type { ConnectionStatus } from "../../models/Lawyer";
 import type { Post } from "../../models/Post";
 import type { NetworkService } from "../../services/NetworkService";
@@ -22,6 +24,8 @@ export interface PostCardProps {
   onToggleSave: (postId: string) => void;
   onConnect: (authorId: string) => void;
   onOpenPost: (postId: string) => void;
+  onVotePoll: (postId: string, optionId: string) => void;
+  onSendPost: (postId: string) => void;
 }
 
 const LEVEL_LABEL: Record<number, string> = { 1: "1. nivo", 2: "2. nivo", 3: "3. nivo" };
@@ -54,6 +58,8 @@ export function PostCard({
   onToggleSave,
   onConnect,
   onOpenPost,
+  onVotePoll,
+  onSendPost,
 }: PostCardProps) {
   const [shareNotice, setShareNotice] = useState<string | null>(null);
 
@@ -114,7 +120,23 @@ export function PostCard({
         )}
       </header>
 
-      <p className="post-card__content">{previewContent}</p>
+      {previewContent && <p className="post-card__content">{previewContent}</p>}
+
+      {post.document && (
+        <div className="post-card__attachment">
+          <DocumentAttachment document={post.document} />
+        </div>
+      )}
+
+      {post.poll && (
+        <div className="post-card__attachment">
+          <PollBlock
+            poll={post.poll}
+            currentUserId={currentUserId}
+            onVote={(optionId) => onVotePoll(post.id, optionId)}
+          />
+        </div>
+      )}
 
       {likerSummary && (
         <div className="post-card__reactions">
@@ -174,7 +196,14 @@ export function PostCard({
           {isSaved ? "Sačuvano" : "Sačuvaj"}
         </button>
 
-        <button type="button" className="post-card__action" onClick={(event) => handleInertAction(event, "Slanje u poruci")}>
+        <button
+          type="button"
+          className="post-card__action"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSendPost(post.id);
+          }}
+        >
           <SendIcon />
           Pošalji
         </button>

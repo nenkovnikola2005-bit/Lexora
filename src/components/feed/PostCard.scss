@@ -77,6 +77,10 @@
   white-space: pre-wrap;
 }
 
+.post-card__attachment {
+  cursor: default;
+}
+
 .post-card__reactions {
   display: flex;
   align-items: center;

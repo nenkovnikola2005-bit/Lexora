@@ -12,7 +12,6 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { SettingsPage } from "./pages/SettingsPage";
-import { SettingsSectionPage } from "./pages/SettingsSectionPage";
 
 function App() {
   return (
@@ -32,8 +31,8 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/messages/:conversationId" element={<MessagesPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/settings/:section" element={<SettingsSectionPage />} />
+                <Route path="/settings" element={<Navigate to="/settings/profil" replace />} />
+                <Route path="/settings/:section" element={<SettingsPage />} />
               </Route>
             </Route>
 

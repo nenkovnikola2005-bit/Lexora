@@ -33,13 +33,11 @@ function calculateProfileStrength(user: User): ProfileStrength {
     { label: "Grad", done: Boolean(user.city) },
   ];
 
-  if (user.role === "advokat") {
-    items.push(
-      { label: "Oblast prava", done: Boolean(user.practiceArea) },
-      { label: "Broj u imeniku komore", done: Boolean(user.barNumber) },
-      { label: "Verifikovana licenca", done: user.licenseVerified },
-    );
-  }
+  items.push(
+    { label: "Oblast prava", done: Boolean(user.practiceArea) },
+    { label: "Broj u imeniku komore", done: Boolean(user.barNumber) },
+    { label: "Verifikovana licenca", done: user.licenseVerified },
+  );
 
   const done = items.filter((item) => item.done).length;
   const percent = Math.round((done / items.length) * 100);

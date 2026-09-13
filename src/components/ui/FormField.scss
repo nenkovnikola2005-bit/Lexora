@@ -69,6 +69,21 @@
     }
   }
 
+  &__control--select {
+    appearance: none;
+    cursor: pointer;
+  }
+
+  &__chevron {
+    position: absolute;
+    top: 50%;
+    right: 0.875rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    color: var(--color-slate-400);
+    pointer-events: none;
+  }
+
   &__message {
     font-size: var(--font-meta-size);
     line-height: var(--font-meta-line-height);

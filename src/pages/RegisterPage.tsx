@@ -5,6 +5,7 @@ import { Button } from "../components/ui/Button";
 import { FormField } from "../components/ui/FormField";
 import { CITIES, PRACTICE_AREAS } from "../data/constants";
 import { useAuth } from "../context/AuthContext";
+import { ROLE_LABELS } from "../models/User";
 import type { UserRole } from "../models/User";
 import "./RegisterPage.scss";
 
@@ -34,6 +35,23 @@ function calculatePasswordStrength(password: string): PasswordStrengthLevel {
   if (total <= 4) return 2;
   return 3;
 }
+
+const ROLE_OPTIONS: UserRole[] = ["advokat", "advokatski-pripravnik", "pravni-savetnik"];
+
+const REGISTRATION_STEPS = [
+  {
+    title: "Verifikovana licenca",
+    description: "Oznaka koju kolege odmah vide pored vašeg imena.",
+  },
+  {
+    title: "Mreža po oblastima",
+    description: "Predlozi za povezivanje iz vaše specijalizacije i grada.",
+  },
+  {
+    title: "Vidljivost u pretrazi",
+    description: "Kolege vas nalaze po veštinama, ne po oglasu.",
+  },
+];
 
 const PRACTICE_AREA_OPTIONS = [
   { value: "", label: "Izaberite oblast prava" },
@@ -92,9 +110,9 @@ export function RegisterPage() {
         email,
         password,
         role,
-        barNumber: role === "advokat" ? barNumber : undefined,
-        practiceArea: role === "advokat" ? practiceArea : undefined,
-        city: role === "advokat" ? city : undefined,
+        barNumber,
+        practiceArea,
+        city,
       });
       navigate("/feed", { replace: true });
     } catch (err) {
@@ -106,40 +124,64 @@ export function RegisterPage() {
 
   return (
     <div className="register-page">
+      <div className="register-page__brand">
+        <span className="register-page__ukras register-page__ukras--1" aria-hidden="true" />
+        <span className="register-page__ukras register-page__ukras--2" aria-hidden="true" />
+
+        <div className="register-page__brand-content">
+          <div className="register-page__logo">
+            <span className="register-page__logo-mark">L</span>
+            <span className="register-page__logo-word">Lexora</span>
+          </div>
+
+          <div className="register-page__headline">
+            <p className="register-page__title">Vaš profil je vaša reputacija.</p>
+            <p className="register-page__subtitle">
+              Registracija traje dva minuta. Licencu proveravamo u imeniku advokatske komore u
+              roku od 24 sata.
+            </p>
+          </div>
+
+          <div className="register-page__steps">
+            {REGISTRATION_STEPS.map((step, index) => (
+              <div className="register-page__step" key={step.title}>
+                <span className="register-page__step-number">{index + 1}</span>
+                <div className="register-page__step-text">
+                  <p className="register-page__step-title">{step.title}</p>
+                  <p className="register-page__step-description">{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="register-page__panel">
         <form className="register-page__form" onSubmit={handleSubmit}>
-          <h1 className="register-page__heading">Registracija</h1>
+          <h1 className="register-page__heading">Otvorite nalog</h1>
           <p className="register-page__subtext">
-            Već imate nalog? <Link to="/login">Prijavite se</Link>
+            Već ste član? <Link to="/login">Prijavite se</Link>
           </p>
 
-          <div className="register-page__role-toggle" role="radiogroup" aria-label="Uloga">
-            <button
-              type="button"
-              role="radio"
-              className={
-                role === "advokat"
-                  ? "register-page__role-btn register-page__role-btn--active"
-                  : "register-page__role-btn"
-              }
-              aria-checked={role === "advokat"}
-              onClick={() => setRole("advokat")}
-            >
-              Advokat
-            </button>
-            <button
-              type="button"
-              role="radio"
-              className={
-                role === "klijent"
-                  ? "register-page__role-btn register-page__role-btn--active"
-                  : "register-page__role-btn"
-              }
-              aria-checked={role === "klijent"}
-              onClick={() => setRole("klijent")}
-            >
-              Klijent
-            </button>
+          <p className="register-page__section-label">Registrujem se kao</p>
+          <div className="register-page__role-picker" role="radiogroup" aria-label="Uloga">
+            {ROLE_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="radio"
+                aria-checked={role === option}
+                className={
+                  role === option
+                    ? "register-page__role-card register-page__role-card--active"
+                    : "register-page__role-card"
+                }
+                onClick={() => setRole(option)}
+              >
+                <span className="register-page__role-dot" />
+                {ROLE_LABELS[option]}
+              </button>
+            ))}
           </div>
 
           <div className="register-page__row">
@@ -147,57 +189,67 @@ export function RegisterPage() {
             <FormField id="register-last-name" label="Prezime" value={lastName} onChange={setLastName} required />
           </div>
 
-          <FormField
-            id="register-email"
-            label="Email"
-            variant="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="ime@primer.rs"
-            required
-          />
+          <div className="register-page__row">
+            <FormField
+              id="register-email"
+              label="E-mail adresa"
+              variant="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="ime.prezime@advokat.rs"
+              required
+            />
+            <FormField
+              id="register-bar-number"
+              label="Broj u imeniku komore"
+              value={barNumber}
+              onChange={setBarNumber}
+              placeholder="AK NI 1284"
+              required
+            />
+          </div>
 
-          {role === "advokat" && (
-            <>
-              <FormField
-                id="register-bar-number"
-                label="Broj u imeniku komore"
-                value={barNumber}
-                onChange={setBarNumber}
-                placeholder="AK-2024-0001"
-                required
-              />
-              <div className="register-page__row">
-                <FormField
-                  id="register-practice-area"
-                  label="Oblast prava"
-                  variant="select"
-                  value={practiceArea}
-                  onChange={setPracticeArea}
-                  options={PRACTICE_AREA_OPTIONS}
-                  required
-                />
-                <FormField
-                  id="register-city"
-                  label="Grad"
-                  variant="select"
-                  value={city}
-                  onChange={setCity}
-                  options={CITY_OPTIONS}
-                  required
-                />
-              </div>
-            </>
-          )}
+          <div className="register-page__row">
+            <FormField
+              id="register-practice-area"
+              label="Primarna oblast prava"
+              variant="select"
+              value={practiceArea}
+              onChange={setPracticeArea}
+              options={PRACTICE_AREA_OPTIONS}
+              required
+            />
+            <FormField
+              id="register-city"
+              label="Grad"
+              variant="select"
+              value={city}
+              onChange={setCity}
+              options={CITY_OPTIONS}
+              required
+            />
+          </div>
 
-          <FormField
-            id="register-password"
-            label="Lozinka"
-            variant="password"
-            value={password}
-            onChange={setPassword}
-            required
-          />
+          <div className="register-page__row">
+            <FormField
+              id="register-password"
+              label="Lozinka"
+              variant="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Najmanje 8 karaktera"
+              required
+            />
+            <FormField
+              id="register-confirm-password"
+              label="Potvrda lozinke"
+              variant="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Ponovite lozinku"
+              required
+            />
+          </div>
 
           {password && (
             <div className="register-page__strength">
@@ -219,15 +271,6 @@ export function RegisterPage() {
             </div>
           )}
 
-          <FormField
-            id="register-confirm-password"
-            label="Potvrda lozinke"
-            variant="password"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            required
-          />
-
           <label className="register-page__consent">
             <input
               type="checkbox"
@@ -243,17 +286,10 @@ export function RegisterPage() {
               i{" "}
               <a href="#" onClick={(event) => event.preventDefault()}>
                 Kodeks profesionalnog ponašanja
-              </a>
-              .
+              </a>{" "}
+              na platformi.
             </span>
           </label>
-
-          {role === "advokat" && (
-            <p className="register-page__license-note">
-              Vaš profil će biti vidljiv bez oznake „Verifikovana licenca” dok Lexora ne proveri
-              broj u imeniku komore.
-            </p>
-          )}
 
           {error && (
             <p className="register-page__error" role="alert">
@@ -261,9 +297,14 @@ export function RegisterPage() {
             </p>
           )}
 
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Kreiranje naloga..." : "Registruj se"}
+          <Button type="submit" className="register-page__submit-btn" disabled={submitting}>
+            {submitting ? "Kreiranje naloga..." : "Kreiraj nalog"}
           </Button>
+
+          <p className="register-page__footnote">
+            Šaljemo verifikacioni e-mail. Do provere licence profil je vidljiv bez oznake
+            „Verifikovana licenca”.
+          </p>
         </form>
       </div>
     </div>

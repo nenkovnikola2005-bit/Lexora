@@ -1,6 +1,6 @@
 import type { IAuthService } from "../models/interfaces";
 import type { RegisterInput, User } from "../models/User";
-import { getInitials } from "../models/User";
+import { ROLE_LABELS, getInitials } from "../models/User";
 import { StorageService } from "./StorageService";
 
 interface StoredAccount extends User {
@@ -54,10 +54,7 @@ export class AuthService implements IAuthService {
       barNumber: input.barNumber,
       practiceArea: input.practiceArea,
       city: input.city,
-      headline:
-        input.role === "advokat"
-          ? `Advokat${input.practiceArea ? ` · ${input.practiceArea}` : ""}`
-          : "Klijent",
+      headline: `${ROLE_LABELS[input.role]}${input.practiceArea ? ` · ${input.practiceArea}` : ""}`,
       bio: "",
       avatarInitials: getInitials(input.firstName, input.lastName),
       licenseVerified: false,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
+import { ChevronIcon } from "./icons/ChevronIcon";
 import { EyeIcon } from "./icons/EyeIcon";
 import "./FormField.scss";
 
@@ -60,23 +61,28 @@ export function FormField({
   const renderControl = (): ReactNode => {
     if (variant === "select") {
       return (
-        <select
-          id={id}
-          name={name}
-          className={controlClassName}
-          value={value}
-          onChange={handleChange}
-          required={required}
-          disabled={disabled}
-          aria-invalid={hasError || undefined}
-          aria-describedby={messageId}
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <div className="form-field__control-wrap">
+          <select
+            id={id}
+            name={name}
+            className={`${controlClassName} form-field__control--with-icon form-field__control--select`}
+            value={value}
+            onChange={handleChange}
+            required={required}
+            disabled={disabled}
+            aria-invalid={hasError || undefined}
+            aria-describedby={messageId}
+          >
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <span className="form-field__chevron">
+            <ChevronIcon />
+          </span>
+        </div>
       );
     }
 

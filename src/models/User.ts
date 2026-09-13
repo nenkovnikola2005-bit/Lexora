@@ -1,6 +1,12 @@
 import type { Education, Experience } from "./Lawyer";
 
-export type UserRole = "advokat" | "klijent";
+export type UserRole = "advokat" | "advokatski-pripravnik" | "pravni-savetnik";
+
+export const ROLE_LABELS: Record<UserRole, string> = {
+  advokat: "Advokat",
+  "advokatski-pripravnik": "Advokatski pripravnik",
+  "pravni-savetnik": "Pravni savetnik u firmi",
+};
 
 export interface User {
   id: string;

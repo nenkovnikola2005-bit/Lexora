@@ -3,6 +3,10 @@
 // da menja paletu u runtime-u preko atributa data-theme na <html>.
 
 :root {
+  // Govori pregledaču da nativne kontrole (checkbox, select, scrollbar)
+  // crta u svetloj varijanti, bez obzira na sistemsku temu OS-a.
+  color-scheme: light;
+
   // --- Sirova paleta boja (Figma "Colors") ---
   --color-indigo-50: #eef2ff;
   --color-indigo-200: #c7d2fe;
@@ -19,6 +23,7 @@
 
   --color-slate-50: #f8fafc;
   --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
   --color-slate-400: #94a3b8;
   --color-slate-500: #64748b;
   --color-slate-700: #334155;
@@ -119,6 +124,8 @@
 // --- Tamna tema (po sistemskoj podešenosti, osim ako je korisnik ručno izabrao svetlu) ---
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
     --color-bg: var(--color-slate-900);
     --color-surface: color-mix(in srgb, var(--color-white) 6%, var(--color-slate-900));
     --color-border: var(--color-slate-700);
@@ -135,6 +142,8 @@
 
 // --- Tamna tema (ručni izbor preko ThemeContext, data-theme="dark") ---
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   --color-bg: var(--color-slate-900);
   --color-surface: color-mix(in srgb, var(--color-white) 6%, var(--color-slate-900));
   --color-border: var(--color-slate-700);

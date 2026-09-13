@@ -76,7 +76,7 @@ export function NetworkPage() {
       <section className="network-page__results">
         {pendingIncoming.length > 0 && (
           <div className="network-page__invitations">
-            <p className="network-page__section-title">Pozivnice</p>
+            <h2 className="network-page__section-title">Pozivnice</h2>
             <div className="network-page__invitations-list">
               {pendingIncoming.map((lawyer) => (
                 <div key={lawyer.id} className="network-page__invitation">
@@ -105,9 +105,9 @@ export function NetworkPage() {
           </div>
         )}
 
-        <p className="network-page__section-title">
+        <h2 className="network-page__section-title">
           Rezultati{directory.length > 0 ? ` (${directory.length})` : ""}
-        </p>
+        </h2>
 
         {pageItems.length === 0 ? (
           <p className="network-page__empty">

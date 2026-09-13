@@ -199,9 +199,15 @@ export function SettingsPage() {
             onChange={setNewPassword}
             required
           />
-          {passwordError && <p className="settings-page__form-error">{passwordError}</p>}
+          {passwordError && (
+            <p className="settings-page__form-error" role="alert">
+              {passwordError}
+            </p>
+          )}
           {passwordSuccess && (
-            <p className="settings-page__form-success">{passwordSuccess}</p>
+            <p className="settings-page__form-success" role="status">
+              {passwordSuccess}
+            </p>
           )}
           <Button
             type="submit"

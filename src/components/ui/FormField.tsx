@@ -42,6 +42,7 @@ export function FormField({
   rows = 4,
 }: FormFieldProps) {
   const hasError = Boolean(errorText);
+  const messageId = errorText || helperText ? `${id}-message` : undefined;
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -64,6 +65,8 @@ export function FormField({
           onChange={handleChange}
           required={required}
           disabled={disabled}
+          aria-invalid={hasError || undefined}
+          aria-describedby={messageId}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>
@@ -86,6 +89,8 @@ export function FormField({
           required={required}
           disabled={disabled}
           rows={rows}
+          aria-invalid={hasError || undefined}
+          aria-describedby={messageId}
         />
       );
     }
@@ -101,6 +106,8 @@ export function FormField({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        aria-invalid={hasError || undefined}
+        aria-describedby={messageId}
       />
     );
   };
@@ -112,9 +119,13 @@ export function FormField({
       </label>
       {renderControl()}
       {errorText ? (
-        <p className="form-field__message form-field__message--error">{errorText}</p>
+        <p id={messageId} className="form-field__message form-field__message--error" role="alert">
+          {errorText}
+        </p>
       ) : helperText ? (
-        <p className="form-field__message">{helperText}</p>
+        <p id={messageId} className="form-field__message">
+          {helperText}
+        </p>
       ) : null}
     </div>
   );

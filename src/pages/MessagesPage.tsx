@@ -84,9 +84,9 @@ export function MessagesPage() {
         ) : (
           <>
             <header className="messages-page__thread-header">
-              <p className="messages-page__thread-name">
+              <h2 className="messages-page__thread-name">
                 {activeConversation.participantName}
-              </p>
+              </h2>
               <p className="messages-page__thread-headline">
                 {activeConversation.participantHeadline}
               </p>
@@ -121,6 +121,7 @@ export function MessagesPage() {
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 placeholder="Napišite poruku..."
+                aria-label="Napišite poruku"
               />
               <Button type="submit" disabled={!draft.trim()}>
                 Pošalji

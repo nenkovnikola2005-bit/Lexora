@@ -17,6 +17,7 @@ export function ConversationListItem({ conversation, active }: ConversationListI
       className={
         active ? "conversation-item conversation-item--active" : "conversation-item"
       }
+      aria-current={active ? "page" : undefined}
     >
       <Avatar initials={conversation.participantInitials} size="md" />
       <div className="conversation-item__info">

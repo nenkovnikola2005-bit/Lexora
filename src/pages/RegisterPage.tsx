@@ -116,24 +116,26 @@ export function RegisterPage() {
           <div className="register-page__role-toggle" role="radiogroup" aria-label="Uloga">
             <button
               type="button"
+              role="radio"
               className={
                 role === "advokat"
                   ? "register-page__role-btn register-page__role-btn--active"
                   : "register-page__role-btn"
               }
-              aria-pressed={role === "advokat"}
+              aria-checked={role === "advokat"}
               onClick={() => setRole("advokat")}
             >
               Advokat
             </button>
             <button
               type="button"
+              role="radio"
               className={
                 role === "klijent"
                   ? "register-page__role-btn register-page__role-btn--active"
                   : "register-page__role-btn"
               }
-              aria-pressed={role === "klijent"}
+              aria-checked={role === "klijent"}
               onClick={() => setRole("klijent")}
             >
               Klijent
@@ -233,8 +235,16 @@ export function RegisterPage() {
               onChange={(event) => setConsentChecked(event.target.checked)}
             />
             <span>
-              Prihvatam <a href="#">Uslove korišćenja</a>, <a href="#">Politiku privatnosti</a>{" "}
-              i <a href="#">Kodeks profesionalnog ponašanja</a>.
+              Prihvatam{" "}
+              <a href="#" onClick={(event) => event.preventDefault()}>
+                Uslove korišćenja
+              </a>
+              , <a href="#" onClick={(event) => event.preventDefault()}>Politiku privatnosti</a>{" "}
+              i{" "}
+              <a href="#" onClick={(event) => event.preventDefault()}>
+                Kodeks profesionalnog ponašanja
+              </a>
+              .
             </span>
           </label>
 
@@ -245,7 +255,11 @@ export function RegisterPage() {
             </p>
           )}
 
-          {error && <p className="register-page__error">{error}</p>}
+          {error && (
+            <p className="register-page__error" role="alert">
+              {error}
+            </p>
+          )}
 
           <Button type="submit" disabled={submitting}>
             {submitting ? "Kreiranje naloga..." : "Registruj se"}

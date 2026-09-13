@@ -58,7 +58,7 @@ export function Navbar() {
           onClick={toggleTheme}
           aria-label={theme === "dark" ? "Uključi svetlu temu" : "Uključi tamnu temu"}
         >
-          {theme === "dark" ? "☀️" : "🌙"}
+          <span aria-hidden="true">{theme === "dark" ? "☀️" : "🌙"}</span>
         </button>
 
         {user && (
@@ -69,6 +69,7 @@ export function Navbar() {
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
               aria-haspopup="true"
+              aria-label="Meni naloga"
             >
               <Avatar initials={user.avatarInitials} size="sm" />
             </button>

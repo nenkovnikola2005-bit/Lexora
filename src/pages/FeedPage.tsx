@@ -98,7 +98,7 @@ export function FeedPage() {
         </button>
 
         <div className="feed-page__card feed-page__placeholder-card">
-          <p className="feed-page__card-title">Moje grupe</p>
+          <h2 className="feed-page__card-title">Moje grupe</h2>
           <p className="feed-page__card-text">Uskoro dostupno.</p>
         </div>
       </aside>
@@ -109,7 +109,7 @@ export function FeedPage() {
         <div className="feed-page__toolbar">
           {showSavedOnly ? (
             <>
-              <p className="feed-page__toolbar-title">Sačuvane objave</p>
+              <h2 className="feed-page__toolbar-title">Sačuvane objave</h2>
               <button
                 type="button"
                 className="feed-page__toolbar-reset"
@@ -122,24 +122,26 @@ export function FeedPage() {
             <div className="feed-page__sort-toggle" role="radiogroup" aria-label="Sortiranje objava">
               <button
                 type="button"
+                role="radio"
                 className={
                   sort === "novo"
                     ? "feed-page__sort-btn feed-page__sort-btn--active"
                     : "feed-page__sort-btn"
                 }
-                aria-pressed={sort === "novo"}
+                aria-checked={sort === "novo"}
                 onClick={() => setSort("novo")}
               >
                 Najnovije
               </button>
               <button
                 type="button"
+                role="radio"
                 className={
                   sort === "popularno"
                     ? "feed-page__sort-btn feed-page__sort-btn--active"
                     : "feed-page__sort-btn"
                 }
-                aria-pressed={sort === "popularno"}
+                aria-checked={sort === "popularno"}
                 onClick={() => setSort("popularno")}
               >
                 Najpopularnije
@@ -171,7 +173,7 @@ export function FeedPage() {
 
       <aside className="feed-page__column feed-page__column--right">
         <div className="feed-page__card feed-page__news-card">
-          <p className="feed-page__card-title">Pravne vesti</p>
+          <h2 className="feed-page__card-title">Pravne vesti</h2>
           <ul className="feed-page__news-list">
             {LEGAL_NEWS.map((item) => (
               <li key={item.id} className="feed-page__news-item">
@@ -183,7 +185,7 @@ export function FeedPage() {
         </div>
 
         <div className="feed-page__card feed-page__pro-card">
-          <p className="feed-page__card-title">Lexora Pro</p>
+          <h2 className="feed-page__card-title">Lexora Pro</h2>
           <p className="feed-page__card-text">
             Izdvojte se u pretrazi, vidite ko je posetio vaš profil i otključajte napredne
             filtere mreže.

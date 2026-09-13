@@ -80,7 +80,11 @@ export function LoginPage() {
             required
           />
 
-          {error && <p className="login-page__error">{error}</p>}
+          {error && (
+            <p className="login-page__error" role="alert">
+              {error}
+            </p>
+          )}
 
           <Button type="submit" disabled={submitting}>
             {submitting ? "Prijavljivanje..." : "Prijavi se"}

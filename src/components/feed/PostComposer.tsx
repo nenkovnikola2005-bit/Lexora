@@ -35,6 +35,7 @@ export function PostComposer({ user, postService, onPostCreated }: PostComposerP
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="O čemu razmišljate, kolega?"
+          aria-label="O čemu razmišljate, kolega?"
           rows={3}
         />
         <div className="post-composer__actions">

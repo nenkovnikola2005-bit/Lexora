@@ -117,6 +117,7 @@ export function ProfilePage() {
                 onChange={(event) => setAboutDraft(event.target.value)}
                 rows={5}
                 placeholder="Napišite nešto o sebi i svom radu..."
+                aria-label="O meni"
               />
               <div className="profile-page__about-actions">
                 <Button size="small" onClick={handleSaveAbout}>

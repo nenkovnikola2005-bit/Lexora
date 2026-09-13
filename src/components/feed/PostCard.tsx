@@ -35,6 +35,7 @@ export function PostCard({ post, currentUserId, onToggleLike, onToggleSave }: Po
           className={
             isLiked ? "post-card__action post-card__action--liked" : "post-card__action"
           }
+          aria-pressed={isLiked}
           onClick={() => onToggleLike(post.id)}
         >
           Sviđa mi se{post.likedBy.length > 0 ? ` (${post.likedBy.length})` : ""}
@@ -49,6 +50,7 @@ export function PostCard({ post, currentUserId, onToggleLike, onToggleSave }: Po
           className={
             isSaved ? "post-card__action post-card__action--saved" : "post-card__action"
           }
+          aria-pressed={isSaved}
           onClick={() => onToggleSave(post.id)}
         >
           {isSaved ? "Sačuvano" : "Sačuvaj"}
